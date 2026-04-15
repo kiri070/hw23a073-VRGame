@@ -6,6 +6,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class Sword_red : MonoBehaviour
 {
     public GameObject explosionEffect;
+    public GameObject multiSlashEffect;
 
     XRBaseController rightController;
     Transform leftHand;
@@ -135,7 +136,7 @@ public class Sword_red : MonoBehaviour
         Debug.Log("スキル発動！");
 
         Instantiate(explosionEffect, tipPoint.position, Quaternion.identity);
-
+        Instantiate(multiSlashEffect, tipPoint.position, Quaternion.identity);
         isActivated = false;
     }
 
