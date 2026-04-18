@@ -7,29 +7,43 @@ using UnityEngine;
 /// </summary>
 public class Golem : MonoBehaviour
 {
+    AudioSource audioSource; // オーディオソースコンポーネント
+    SoundManager soundManager; // サウンドマネージャー
+    Boss_SoundList bossSoundList; // ゴーレムのサウンドリスト
+
     Animator anim; // アニメーターコンポーネント
     float attackCooldown = 0; // 攻撃のクールダウン
     GameObject player; //プレイヤーのbody
     public List<Transform> throwObj_Pos; //攻撃の投げる位置
     public GameObject throwObj; //攻撃の投げるオブジェクト
+    int lastAction = 0; //最後に行った行動
     
     void Start()
     {
         anim = GetComponent<Animator>();
         player = GameObject.Find("Player").transform.Find("Body").gameObject;
+        audioSource = GetComponent<AudioSource>();
+        soundManager = FindObjectOfType<SoundManager>();
+        bossSoundList = FindObjectOfType<Boss_SoundList>();
     }
 
     void Update()
     {
         if(attackCooldown <= 0)
         {
-            int rnd = Random.Range(3, 4);
+            int rnd;
             
-            if(rnd == 0) Idle();
-            else if(rnd == 1) Attack1();
+            do
+            {
+                rnd = Random.Range(1, 4);
+            }
+            while (rnd == lastAction); // 前回と同じなら引き直し
+
+            if(rnd == 1) Attack1();
             else if(rnd == 2) Attack2();
             else if(rnd == 3) Attack3();
 
+            lastAction = rnd; // 最後の行動を更新
         }
         
         //0以下にならないようにクールタイムを減らす
@@ -41,10 +55,19 @@ public class Golem : MonoBehaviour
         anim.SetTrigger("IdleAction");
         attackCooldown = 10f;
     }
+    //ダメージを受ける
+    void Damage()
+    {
+        anim.SetTrigger("Damage");
+        attackCooldown = 5f;
+    }
+    // === 攻撃パターン ===
     //攻撃パターン1
     void Attack1()
     {
         anim.SetTrigger("Rage");
+        //Rage音を再生
+        soundManager.OnPlaySE(audioSource, bossSoundList.rageSound);
         attackCooldown = 5f;
     }
     //攻撃パターン2
@@ -78,5 +101,17 @@ public class Golem : MonoBehaviour
             Instantiate(throwObj, throwObj_Pos[3].position, Quaternion.identity);
         }
         attackCooldown = 10f;
+    }
+
+    //衝突判定
+    void OnTriggerEnter(Collider other)
+    {
+        //岩
+        if(other.gameObject.CompareTag("Stone"))
+        {
+            //ダメージを受ける
+            Damage();
+            soundManager.OnPlaySE(audioSource, bossSoundList.damageSound);
+        }
     }
 }

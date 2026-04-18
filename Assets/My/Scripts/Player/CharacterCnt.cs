@@ -15,6 +15,7 @@ public class CharacterCnt : MonoBehaviour
     float turnCooldown = 0f;
     public float turnAngle = 30f; // 回転角度
     public float turnDelay = 0.3f; // 連続防止
+    
 
     void Start()
     {

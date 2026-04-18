@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR; 
 
 public class Sword_red : MonoBehaviour
 {
@@ -38,10 +39,11 @@ public class Sword_red : MonoBehaviour
 
     float cooldown = 0f;
 
-    bool isActivated = false;
+    [HideInInspector] public bool isActivated = false;
 
-    //振り状態管理
-    bool wasSwinging = false;
+    //振り状態管理(外部ではisSwingingとisActivatedで振ったかどうか管理する)
+    [HideInInspector] public bool wasSwinging = false;
+    [HideInInspector] public bool isSwinging = false;
 
     //エンチャントレベル
     int enchantLevel = 0;
@@ -66,6 +68,22 @@ public class Sword_red : MonoBehaviour
     {
         cooldown -= Time.deltaTime;
 
+        // ===== 剣の振り判定 =====
+        InputDevice rightDevice = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+        Vector3 velocity;
+
+        if (rightDevice.TryGetFeatureValue(CommonUsages.deviceVelocity, out velocity))
+        {
+            float speed = velocity.magnitude;
+            isSwinging = speed > 3f; // 振りとみなす速度の閾値
+        }
+        else
+        {
+            isSwinging = false;
+        }
+
+        // ===============================================
+
         bool traced = CheckTrace();
 
         if (traced && cooldown <= 0f)
@@ -73,14 +91,12 @@ public class Sword_red : MonoBehaviour
             ActivateEnchant();
         }
 
-        if (isActivated)
+        // スキル発動中の処理
+        if (isActivated) 
         {
             UpdateEnchant();
 
-            // ===== 振り判定 =====
-            bool isSwinging = CheckSwing();
-
-            // 振り終わりで発動
+            //振り終わりで発動
             if (!isSwinging && wasSwinging)
             {
                 ExecuteSkill();
@@ -88,13 +104,13 @@ public class Sword_red : MonoBehaviour
 
             wasSwinging = isSwinging;
         }
-        else
+        // スキル非発動中はエフェクトを消す
+        else 
         {
             effect_level1.SetActive(false);
             effect_level2.SetActive(false);
             effect_level3.SetActive(false);
         }
-
         UpdatePreviousState();
     }
 
@@ -127,12 +143,11 @@ public class Sword_red : MonoBehaviour
     // ===== エンチャント開始 =====
     void ActivateEnchant()
     {
-        // エンチャントレベルを上げる
         if(enchantLevel <= 3)
         {
             enchantLevel++;
         }
-        // エンチャントレベルに応じた振動
+
         if(enchantLevel == 1)
         {
             Debug.Log("エンチャントレベル: " + enchantLevel);
@@ -148,6 +163,7 @@ public class Sword_red : MonoBehaviour
             Debug.Log("エンチャントレベル: " + enchantLevel);
             SendHaptic(1f, 1f, leftController);
         }
+
         Debug.Log("なぞり成功！");
         isActivated = true;
         cooldown = 0.3f;
@@ -177,31 +193,17 @@ public class Sword_red : MonoBehaviour
             effect_level3.SetActive(true);
             SendHaptic(1f, 0.05f, rightController);
         }
-        // effect.SetActive(true);
-        // SendHaptic(0.2f, 0.05f, rightController);
-    }
-
-    // ===== 振り判定 =====
-    bool CheckSwing()
-    {
-        float angle = Quaternion.Angle(prevRot, transform.rotation);
-
-        Vector3 swordMove = transform.position - prevSwordPos;
-        float moveAmount = swordMove.magnitude;
-
-        return (angle > 10f && moveAmount > 0.05f) || moveAmount > 0.15f;
     }
 
     // ===== スキル発動 =====
     void ExecuteSkill()
     {
         Debug.Log("スキル発動！");
+
         if(enchantLevel == 1)
         {
             Debug.Log("エンチャントレベル1のスキル発動");
-            // Instantiate(fireEffect, tipPoint.position, fireEffect.transform.rotation);
             Quaternion randomRot = Random.rotation;
-
             Instantiate(fireEffect, tipPoint.position, randomRot);
         }
         else if(enchantLevel == 2)
@@ -214,7 +216,7 @@ public class Sword_red : MonoBehaviour
         }
         
         isActivated = false;
-        enchantLevel = 0; // エンチャントレベルリセット
+        enchantLevel = 0;
     }
 
     // ===== 前フレーム更新 =====
@@ -234,15 +236,13 @@ public class Sword_red : MonoBehaviour
         }
     }
 
+    //衝突開始判定
     void OnCollisionEnter(Collision other)
     {
-        //===エフェクトが出ない不具合===
-        // 敵に当たったときの処理
+        //敵
         if(other.gameObject.CompareTag("Enemy") && !isAttack)
         {
-            // 接触点を取得
             ContactPoint contact = other.contacts[0];
-            // 接触点にエフェクトを生成
             Vector3 hitPos = contact.point;
 
             Instantiate(hitEffect, hitPos, Quaternion.identity);
@@ -250,7 +250,7 @@ public class Sword_red : MonoBehaviour
             enchantLevel = 0;
         }
     }
-
+    //衝突終了判定
     void OnCollisionExit(Collision other)
     {
         if(other.gameObject.CompareTag("Enemy"))
