@@ -9,6 +9,8 @@ TagManager:
   - Boss
   - Floor
   - Stone
+  - FxTemporaire
+  - Skill
   layers:
   - Default
   - TransparentFX

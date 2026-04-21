@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR; 
+using UnityEngine.XR;
 
 public class Sword_red : MonoBehaviour
 {
@@ -19,7 +19,10 @@ public class Sword_red : MonoBehaviour
     XRBaseController rightController;
     XRBaseController leftController;
     Transform leftHand;
-
+    GameManager gm;
+    SoundManager sm;
+    SwordSoundList swordSoundList;
+    AudioSource audioSource;
     public Transform rootPoint;
     public Transform tipPoint;
 
@@ -54,6 +57,10 @@ public class Sword_red : MonoBehaviour
     {
         rightController = GameObject.Find("Right Controller").GetComponent<XRBaseController>();
         leftController = GameObject.Find("Left Controller").GetComponent<XRBaseController>();
+        gm = FindObjectOfType<GameManager>();
+        sm = FindObjectOfType<SoundManager>();
+        swordSoundList = FindObjectOfType<SwordSoundList>();
+        audioSource = GetComponent<AudioSource>();
         leftHand = GameObject.Find("Left Controller").transform;
         effect_level1 = transform.Find("Effect_Level1").gameObject;
         effect_level2 = transform.Find("Effect_Level2").gameObject;
@@ -152,16 +159,19 @@ public class Sword_red : MonoBehaviour
         {
             Debug.Log("エンチャントレベル: " + enchantLevel);
             SendHaptic(0.5f, 1f, leftController);
+             SendHaptic(0.5f, 1f, rightController);
         }
         else if(enchantLevel == 2)
         {
             Debug.Log("エンチャントレベル: " + enchantLevel);
             SendHaptic(0.8f, 1f, leftController);
+            SendHaptic(0.8f, 1f, rightController);
         }
         else if(enchantLevel == 3)
         {
             Debug.Log("エンチャントレベル: " + enchantLevel);
             SendHaptic(1f, 1f, leftController);
+            SendHaptic(1f, 1f, rightController);
         }
 
         Debug.Log("なぞり成功！");
@@ -177,21 +187,21 @@ public class Sword_red : MonoBehaviour
             effect_level1.SetActive(true);
             effect_level2.SetActive(false);
             effect_level3.SetActive(false);
-            SendHaptic(0.2f, 0.05f, rightController);
+            // SendHaptic(0.2f, 0.05f, rightController);
         }
         else if(enchantLevel == 2)
         {
             effect_level1.SetActive(false);
             effect_level2.SetActive(true);
             effect_level3.SetActive(false);
-            SendHaptic(0.5f, 0.05f, rightController);
+            // SendHaptic(0.5f, 0.05f, rightController);
         }
         else if(enchantLevel == 3)
         {
             effect_level1.SetActive(false);
             effect_level2.SetActive(false);
             effect_level3.SetActive(true);
-            SendHaptic(1f, 0.05f, rightController);
+            // SendHaptic(1f, 0.05f, rightController);
         }
     }
 
@@ -258,4 +268,16 @@ public class Sword_red : MonoBehaviour
             isAttack = false;
         }
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        //石の当たり判定
+        if(other.gameObject.CompareTag("Stone") && !isAttack && isSwinging && isActivated)
+        {
+            StartCoroutine(gm.HitStop(0.5f, 0.2f)); // ヒットストップ
+            SendHaptic(1f, 0.5f, rightController);
+            sm.OnPlaySE(audioSource, swordSoundList.flictionSound, 2f);
+        }
+    }
+    
 }
