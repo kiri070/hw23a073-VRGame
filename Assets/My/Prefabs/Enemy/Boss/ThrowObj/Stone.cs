@@ -29,12 +29,16 @@ public class Stone : MonoBehaviour
 
     bool isReachedPlayer = false; // 追加
     bool reflectioned = false; //反射されたかどうかのフラグ
+
+    [HideInInspector]public int sword_enchantLevel = 0;
+    Sword_red sword_Red;
     void Start()
     {
         soundManager = FindObjectOfType<SoundManager>();
         stoneSoundList = FindObjectOfType<Stone_SoundList>();
         audioSource = GetComponent<AudioSource>();
         gm = FindObjectOfType<GameManager>();
+        sword_Red = FindObjectOfType<Sword_red>();
 
         player = GameObject.Find("Player").transform.Find("Body").gameObject;
         boss_Pos = GameObject.Find("GolemPrefab").transform; //ボスの位置を取得
@@ -83,7 +87,7 @@ public class Stone : MonoBehaviour
         if (other.gameObject.CompareTag("Sword") && !reflectioned)
         {
             //剣を振っていたら
-            Sword_red sword_Red = other.gameObject.GetComponent<Sword_red>();
+            // Sword_red sword_Red = other.gameObject.GetComponent<Sword_red>();
             //剣が振られていて、かつスキルが発動している（エンチャントの状態）なら跳ね返る
             if(sword_Red != null && sword_Red.isSwinging && sword_Red.isActivated)
             {
@@ -93,7 +97,13 @@ public class Stone : MonoBehaviour
                 isHitSword = true;
                 rb.velocity = Vector3.zero; // 一旦速度をリセット
                 reflectioned = true; //反射されたフラグを立てる
+
+                sword_enchantLevel = sword_Red.enchantLevel; //エンチャントレベル
             }
+        }
+        if(other.CompareTag("Skill"))
+        {
+            sword_enchantLevel = sword_Red.currentSkillLevel; //エンチャントレベル
         }
         if(other.gameObject.CompareTag("Boss"))
         {

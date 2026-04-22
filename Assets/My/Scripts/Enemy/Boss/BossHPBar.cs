@@ -15,15 +15,15 @@ public class BossHPBar : MonoBehaviour
         // 難易度に応じてHPバーの最大値を設定
         if(gm.difficulty == GameManager.Difficulty.Easy)
         {
-            hpbar.maxValue = 100f; // 簡単な難易度の最大HP
+            hpbar.maxValue = 200f; // 簡単な難易度の最大HP
         }
         else if(gm.difficulty == GameManager.Difficulty.Normal)
         {
-            hpbar.maxValue = 200f; // 普通の難易度の最大HP
+            hpbar.maxValue = 300f; // 普通の難易度の最大HP
         }
         else if(gm.difficulty == GameManager.Difficulty.Hard)
         {
-            hpbar.maxValue = 300f; // 難しい難易度の最大HP
+            hpbar.maxValue = 500f; // 難しい難易度の最大HP
         }
         //HPバーに最大HPを設定
         maxHP = hpbar.maxValue;

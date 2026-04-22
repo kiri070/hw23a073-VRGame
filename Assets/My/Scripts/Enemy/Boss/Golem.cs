@@ -25,6 +25,7 @@ public class Golem : MonoBehaviour
     public List<Transform> throwObj_Pos; //攻撃の投げる位置
     public GameObject throwObj; //攻撃の投げるオブジェクト
     int lastAction = 0; //最後に行った行動
+
     
     void Start()
     {
@@ -128,7 +129,20 @@ public class Golem : MonoBehaviour
             //ダメージを受ける
             Damage();
             soundManager.OnPlaySE(audioSource, bossSoundList.damageSound);
-            bossHPBar.UpdateHPBar(20f); // HPバーを更新
+            
+            // HPバーを更新
+            // bossHPBar.UpdateHPBar(5f); 
+            Stone stone = other.gameObject.GetComponent<Stone>();
+            if(stone.sword_enchantLevel == 1) TakeDamage(5);
+            if(stone.sword_enchantLevel == 2) TakeDamage(10);
+            if(stone.sword_enchantLevel == 3) TakeDamage(15);
         }
+    }
+
+    //ダメージを受ける関数
+    public void TakeDamage(int damage)
+    {
+        bossHPBar.UpdateHPBar(damage);
+        Debug.Log("ダメージ: "+damage);
     }
 }

@@ -58,6 +58,7 @@ public class Enemy01 : MonoBehaviour
     void Die()
     {
         death = true;
+        punchCollider.SetActive(false);
         enemyChase.chase = false;
         ChangeAnim("Punch", false);
         ChangeAnim("Walk1", false);

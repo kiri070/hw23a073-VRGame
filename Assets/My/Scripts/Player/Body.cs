@@ -7,10 +7,17 @@ public class Body : MonoBehaviour
     // === プレイヤー情報 === //
     public int hp = 100;
 
+    CharacterController controller;
+    //ノックバック関連
+    Vector3 knockbackVelocity;
+    float knockbackTime = 0.2f;
+    bool isKnockback = false;
+
     float lastY;
     void Start()
     {
         lastY = Camera.main.transform.eulerAngles.y;
+        controller = GetComponentInParent<CharacterController>();
     }
 
     void Update()
@@ -33,6 +40,35 @@ public class Body : MonoBehaviour
         }
     }
 
+    // === ノックバック処理 === //
+    public void Knockback(Vector3 enemyPos)
+    {
+        Vector3 dir = (transform.position - enemyPos).normalized;
+
+        knockbackVelocity = dir * 5f + Vector3.up * 2f;
+
+        StopAllCoroutines();
+        StartCoroutine(KnockbackRoutine());
+    }
+    IEnumerator KnockbackRoutine()
+    {
+        isKnockback = true;
+
+        float t = 0;
+
+        while (t < knockbackTime)
+        {
+            controller.Move(knockbackVelocity * Time.deltaTime);
+
+            knockbackVelocity *= 1.2f; // 減速
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        isKnockback = false;
+    }
+
 
     void OnTriggerEnter(Collider other)
     {
@@ -40,6 +76,7 @@ public class Body : MonoBehaviour
         if(other.CompareTag("Enemy01_Punch"))
         {
             hp -= 10;
+            Knockback(other.transform.position);
             Debug.Log("プレイヤーHP:" + hp);
         }
     }

@@ -18,6 +18,7 @@ public class Sword_red : MonoBehaviour
     //エンチャントレベル3
 
 
+    Golem golem;
     XRBaseController rightController;
     XRBaseController leftController;
     Transform leftHand;
@@ -51,7 +52,8 @@ public class Sword_red : MonoBehaviour
     [HideInInspector] public bool isSwinging = false;
 
     //エンチャントレベル
-    int enchantLevel = 0;
+    [HideInInspector] public int enchantLevel = 0;
+    [HideInInspector] public int currentSkillLevel = 0;
 
     bool isAttack = false;
 
@@ -67,6 +69,7 @@ public class Sword_red : MonoBehaviour
         sm = FindObjectOfType<SoundManager>();
         swordSoundList = FindObjectOfType<SwordSoundList>();
         audioSource = GetComponent<AudioSource>();
+        golem = FindObjectOfType<Golem>();
         leftHand = GameObject.Find("Left Controller").transform;
         effect_level1 = transform.Find("Effect_Level1").gameObject;
         effect_level2 = transform.Find("Effect_Level2").gameObject;
@@ -255,6 +258,8 @@ public class Sword_red : MonoBehaviour
     void ExecuteSkill()
     {
         Debug.Log("スキル発動！");
+
+        currentSkillLevel = enchantLevel; //現在のエンチャントレベルを保存
 
         if(enchantLevel == 1)
         {
