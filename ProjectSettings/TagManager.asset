@@ -11,6 +11,7 @@ TagManager:
   - Stone
   - FxTemporaire
   - Skill
+  - Enemy01_Punch
   layers:
   - Default
   - TransparentFX

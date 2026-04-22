@@ -104,7 +104,8 @@ public class Sword_red : MonoBehaviour
             UpdateEnchant();
 
             //振り終わりで発動
-            if (!isSwinging && wasSwinging)
+            // if (!isSwinging && wasSwinging ) 
+            if (!isSwinging && wasSwinging && isActivated)
             {
                 ExecuteSkill();
             }
@@ -246,29 +247,6 @@ public class Sword_red : MonoBehaviour
         }
     }
 
-    //衝突開始判定
-    void OnCollisionEnter(Collision other)
-    {
-        //敵
-        if(other.gameObject.CompareTag("Enemy") && !isAttack)
-        {
-            ContactPoint contact = other.contacts[0];
-            Vector3 hitPos = contact.point;
-
-            Instantiate(hitEffect, hitPos, Quaternion.identity);
-            isActivated = false;
-            enchantLevel = 0;
-        }
-    }
-    //衝突終了判定
-    void OnCollisionExit(Collision other)
-    {
-        if(other.gameObject.CompareTag("Enemy"))
-        {
-            isAttack = false;
-        }
-    }
-
     void OnTriggerEnter(Collider other)
     {
         //石の当たり判定
@@ -278,6 +256,24 @@ public class Sword_red : MonoBehaviour
             SendHaptic(1f, 0.5f, rightController);
             sm.OnPlaySE(audioSource, swordSoundList.flictionSound, 2f);
         }
+
+        //敵
+        if(other.gameObject.CompareTag("Enemy") && !isAttack && isSwinging)
+        {
+            isAttack = true;
+
+            Vector3 hitPos = other.ClosestPoint(transform.position);
+
+            Instantiate(hitEffect, hitPos, Quaternion.identity);
+        }
     }
-    
+
+    void OnTriggerExit(Collider other)
+    {
+        if(other.CompareTag("Enemy"))
+        {
+            isAttack = false;
+        }
+    }
+
 }

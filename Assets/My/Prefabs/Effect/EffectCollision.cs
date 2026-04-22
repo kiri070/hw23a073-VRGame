@@ -8,7 +8,7 @@ public class EffectCollision : MonoBehaviour
     {
         if(other.CompareTag("Enemy"))
         {
-            Destroy(other.gameObject.transform.parent.gameObject); // 敵を破壊
+            Destroy(other.gameObject); // 敵を破壊
         }
     }
 }

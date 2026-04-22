@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class Body : MonoBehaviour
 {
-    float lastY;
+    // === プレイヤー情報 === //
+    public int hp = 100;
 
+    float lastY;
     void Start()
     {
         lastY = Camera.main.transform.eulerAngles.y;
@@ -28,6 +30,17 @@ public class Body : MonoBehaviour
         {
             transform.rotation = Quaternion.Euler(0, currentY, 0);
             lastY = currentY;
+        }
+    }
+
+
+    void OnTriggerEnter(Collider other)
+    {
+        //Enemy01のパンチ攻撃
+        if(other.CompareTag("Enemy01_Punch"))
+        {
+            hp -= 10;
+            Debug.Log("プレイヤーHP:" + hp);
         }
     }
 }
