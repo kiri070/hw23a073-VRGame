@@ -1747,7 +1747,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1.07
+  m_Radius: 2.23
   m_Height: 6.39
   m_Direction: 1
   m_Center: {x: -0.005031769, y: 3.25, z: 0.5661188}
@@ -1798,6 +1798,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20230298bf0573d4db067d5507b66e11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 100
+  death: 0
   punchCollider: {fileID: 8071876011120439146}
 --- !u!1 &7072156817456528911
 GameObject:

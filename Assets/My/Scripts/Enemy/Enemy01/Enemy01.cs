@@ -4,14 +4,21 @@ using UnityEngine;
 
 public class Enemy01 : MonoBehaviour
 {
+    // === ステータス ===
+    public int hp = 100;
+    [HideInInspector] public bool death = false;
     Animator anim;
     Enemy01Detector enemy01Detector;
+    EnemyChase enemyChase;
     public GameObject punchCollider;
+
+    
 
     void Start()
     {
         anim = GetComponent<Animator>();
         enemy01Detector = GetComponentInChildren<Enemy01Detector>();
+        enemyChase = GetComponent<EnemyChase>();
     }
 
     // === 攻撃開始・終了処理 === //
@@ -38,4 +45,30 @@ public class Enemy01 : MonoBehaviour
     {
         anim.SetBool(animName, trigger);
     }
+
+    // === ダメージ処理 === //
+    //攻撃を受ける関数
+    public void TakeDamage(int damage)
+    {
+        hp -= damage;
+        if(hp <= 0 && !death) Die();
+
+    }
+    //死んだとき
+    void Die()
+    {
+        death = true;
+        enemyChase.chase = false;
+        ChangeAnim("Punch", false);
+        ChangeAnim("Walk1", false);
+        ChangeAnim("Death", true); //死亡アニメーション
+    }
+
+
+    //Deathアニメーションが終了したら呼ばれる
+    public void DeathAnim_End()
+    {
+        Destroy(this.gameObject);
+    }
+    
 }

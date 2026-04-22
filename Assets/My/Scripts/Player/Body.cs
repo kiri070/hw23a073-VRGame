@@ -43,4 +43,10 @@ public class Body : MonoBehaviour
             Debug.Log("プレイヤーHP:" + hp);
         }
     }
+
+    //プレイヤーが攻撃を受ける関数
+    public void TakeDamage(int damage)
+    {
+        hp -= damage;
+    }
 }

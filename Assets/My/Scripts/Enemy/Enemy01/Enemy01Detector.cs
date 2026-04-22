@@ -33,13 +33,10 @@ public class Enemy01Detector : MonoBehaviour
         enemy01 = GetComponentInParent<Enemy01>();
     }
 
-    void Update()
-    {
-        
-    }
     void OnTriggerStay(Collider other)
     {
-
+        if(enemy01.death) return;
+        
         if (other.CompareTag("Player"))
         {
             Vector3 dir = (other.transform.position - transform.position).normalized;

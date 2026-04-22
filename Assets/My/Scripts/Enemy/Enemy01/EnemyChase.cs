@@ -8,7 +8,7 @@ public class EnemyChase : MonoBehaviour
     Transform player;
     NavMeshAgent agent;
     Enemy01 enemy01;
-    public bool chase = false;
+    [HideInInspector] public bool chase = false;
 
     void Start()
     {
@@ -20,7 +20,7 @@ public class EnemyChase : MonoBehaviour
     void Update()
     {
         //追跡
-        if(chase)
+        if(chase && !enemy01.death)
         {
             agent.SetDestination(player.position);
         }
@@ -29,7 +29,9 @@ public class EnemyChase : MonoBehaviour
             agent.SetDestination(transform.position);
         }
 
-        // ★ここが最重要
+        if(enemy01.death) return;
+
+        //動作に応じて歩くアニメーション
         if (agent.velocity.magnitude > 0.1f)
         {
             enemy01.ChangeAnim("Walk1", true);

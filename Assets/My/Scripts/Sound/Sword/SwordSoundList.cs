@@ -5,4 +5,5 @@ using UnityEngine;
 public class SwordSoundList : MonoBehaviour
 {
     public AudioClip flictionSound; //反射音
+    public AudioClip hitSwordSound;
 }

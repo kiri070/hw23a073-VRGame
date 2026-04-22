@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR;
+using JetBrains.Annotations;
 
 public class Sword_red : MonoBehaviour
 {
     //===== エフェクト =====
     public GameObject hitEffect;
+    GameObject majicEffect;
     //エンチャントレベル1
     public GameObject explosionEffect;
     public GameObject fireEffect;
@@ -53,6 +55,10 @@ public class Sword_red : MonoBehaviour
 
     bool isAttack = false;
 
+    //プレイヤー移動量を計算
+    Transform head;
+    Vector3 prevHeadPos;
+    float headSpeed;
     void Start()
     {
         rightController = GameObject.Find("Right Controller").GetComponent<XRBaseController>();
@@ -69,10 +75,31 @@ public class Sword_red : MonoBehaviour
         prevLeftPos = leftHand.position;
         prevRot = transform.rotation;
         prevSwordPos = transform.position;
+
+        //頭の位置を代入
+        head = Camera.main.transform;
+        prevHeadPos = head.position;
+        majicEffect = GameObject.Find("MajicEffect");
     }
 
     void Update()
     {
+
+        // headSpeed = (head.position - prevHeadPos).magnitude / Time.deltaTime; //プレイヤーの移動量を計算
+        Vector3 move = head.position - prevHeadPos;
+        move.y = 0f; //上下・回転の影響カット
+
+        headSpeed = move.magnitude / Time.deltaTime;
+        //止まっているときは魔方陣をオン
+        if (headSpeed < 1f)
+        {
+            majicEffect.SetActive(true);
+        }
+        else
+        {
+            majicEffect.SetActive(false);
+        }
+
         cooldown -= Time.deltaTime;
 
         // ===== 剣の振り判定 =====
@@ -120,11 +147,29 @@ public class Sword_red : MonoBehaviour
             effect_level3.SetActive(false);
         }
         UpdatePreviousState();
+
+
+
+
+        prevHeadPos = head.position;
     }
 
     // ===== なぞり判定 =====
     bool CheckTrace()
     {
+
+        //プレイヤーの移動量を代入
+        Vector3 headMove = head.position - prevHeadPos;
+        headMove.y = 0f; // ★追加
+
+        //動いてたらエンチャント不可
+        if (headMove.magnitude > 0.02f)
+        {
+            traceTime = 0f;
+            return false;
+        }
+
+
         Vector3 currentLeftPos = leftHand.position;
         Vector3 move = currentLeftPos - prevLeftPos;
 
@@ -265,6 +310,12 @@ public class Sword_red : MonoBehaviour
             Vector3 hitPos = other.ClosestPoint(transform.position);
 
             Instantiate(hitEffect, hitPos, Quaternion.identity);
+
+            //攻撃処理
+            Enemy01 enemy01 = other.GetComponent<Enemy01>();
+            enemy01.TakeDamage(50);
+            StartCoroutine(gm.HitStop(0.7f, 0.7f));
+            sm.OnPlaySE(audioSource, swordSoundList.hitSwordSound, 3f);
         }
     }
 
