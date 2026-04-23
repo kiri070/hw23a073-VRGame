@@ -71,7 +71,7 @@ public class CharacterCnt : MonoBehaviour
         {
             if (isJump && !prevJump && controller.isGrounded)
             {
-                velocityY = 5f;
+                velocityY = 6.5f;
             }
 
             prevJump = isJump;

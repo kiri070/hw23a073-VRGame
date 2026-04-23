@@ -9,4 +9,6 @@ public class Boss_SoundList : MonoBehaviour
 {
     public AudioClip rageSound;
     public AudioClip damageSound;
+    public AudioClip throwSound;
+    public AudioClip hadouAttackSound;
 }

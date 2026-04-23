@@ -208,19 +208,28 @@ public class Sword_red : MonoBehaviour
         {
             Debug.Log("エンチャントレベル: " + enchantLevel);
             SendHaptic(0.5f, 1f, leftController);
-             SendHaptic(0.5f, 1f, rightController);
+            SendHaptic(0.5f, 1f, rightController);
+
+            //エンチャント音声
+            sm.OnPlaySE(audioSource, swordSoundList.enchant_Level1_sound, 3f);
         }
         else if(enchantLevel == 2)
         {
             Debug.Log("エンチャントレベル: " + enchantLevel);
             SendHaptic(0.8f, 1f, leftController);
             SendHaptic(0.8f, 1f, rightController);
+
+            //エンチャント音声
+            sm.OnPlaySE(audioSource, swordSoundList.enchant_Level2_sound, 3f);
         }
         else if(enchantLevel == 3)
         {
             Debug.Log("エンチャントレベル: " + enchantLevel);
             SendHaptic(1f, 1f, leftController);
             SendHaptic(1f, 1f, rightController);
+
+            //エンチャント音声
+            sm.OnPlaySE(audioSource, swordSoundList.enchant_Level3_sound, 3f);
         }
 
         Debug.Log("なぞり成功！");
@@ -266,6 +275,7 @@ public class Sword_red : MonoBehaviour
             Debug.Log("エンチャントレベル1のスキル発動");
             Quaternion randomRot = Random.rotation;
             Instantiate(fireEffect, tipPoint.position, randomRot);
+            sm.OnPlaySE(audioSource, swordSoundList.skill1Sound, 3f);
         }
         else if(enchantLevel == 2)
         {
@@ -318,7 +328,11 @@ public class Sword_red : MonoBehaviour
 
             //攻撃処理
             Enemy01 enemy01 = other.GetComponent<Enemy01>();
-            enemy01.TakeDamage(50);
+            if(enchantLevel == 0) enemy01.TakeDamage(50);
+            if(enchantLevel == 1) enemy01.TakeDamage(60);
+            if(enchantLevel == 2) enemy01.TakeDamage(70);
+            if(enchantLevel == 3) enemy01.TakeDamage(100);
+            
             StartCoroutine(gm.HitStop(0.7f, 0.7f));
             sm.OnPlaySE(audioSource, swordSoundList.hitSwordSound, 3f);
         }

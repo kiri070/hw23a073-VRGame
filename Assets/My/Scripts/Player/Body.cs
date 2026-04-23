@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Body : MonoBehaviour
 {
+    Player_HPBar player_HPBar;
     // === プレイヤー情報 === //
     public int hp = 100;
 
@@ -14,10 +16,25 @@ public class Body : MonoBehaviour
     bool isKnockback = false;
 
     float lastY;
+
+    //サウンド
+    SoundManager sm;
+    Player_SoundList player_SoundList;
+    AudioSource audioSource;
+
+    GameManager gm;
+
     void Start()
     {
         lastY = Camera.main.transform.eulerAngles.y;
         controller = GetComponentInParent<CharacterController>();
+
+        sm = FindObjectOfType<SoundManager>();
+        player_SoundList = GetComponent<Player_SoundList>();
+        audioSource = GetComponent<AudioSource>();
+
+        gm = FindObjectOfType<GameManager>();
+        player_HPBar = FindObjectOfType<Player_HPBar>();
     }
 
     void Update()
@@ -75,9 +92,15 @@ public class Body : MonoBehaviour
         //Enemy01のパンチ攻撃
         if(other.CompareTag("Enemy01_Punch"))
         {
-            hp -= 10;
-            Knockback(other.transform.position);
-            Debug.Log("プレイヤーHP:" + hp);
+            TakeDamage(10);
+            Knockback(other.transform.position); //ノックバック処理
+            gm.Shake(0.7f, 0.7f, 40, 90); //カメラを揺らす
+        }
+        //Bossの石に当たった時
+        if(other.CompareTag("Stone"))
+        {
+            TakeDamage(10);
+            
         }
     }
 
@@ -85,5 +108,14 @@ public class Body : MonoBehaviour
     public void TakeDamage(int damage)
     {
         hp -= damage;
+        sm.OnPlaySE(audioSource, player_SoundList.punchDamageSound, 3f);
+        player_HPBar.UpdateHPBar(damage); //HPバー更新
+        Debug.Log("プレイヤーHP:" + hp);
+
+        //hpが0以下ならゲームオーバー
+        if(hp <= 0)
+        {
+            gm.gameOver = true;
+        }
     }
 }

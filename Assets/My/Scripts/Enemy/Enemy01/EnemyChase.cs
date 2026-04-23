@@ -9,16 +9,20 @@ public class EnemyChase : MonoBehaviour
     NavMeshAgent agent;
     Enemy01 enemy01;
     [HideInInspector] public bool chase = false;
+    GameManager gm;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         player = GameObject.Find("Player").transform;
         enemy01 = GetComponent<Enemy01>();
+        gm = FindObjectOfType<GameManager>();
     }
 
     void Update()
     {
+        if(gm.gameOver) return;
+        
         //追跡
         if(chase && !enemy01.death)
         {

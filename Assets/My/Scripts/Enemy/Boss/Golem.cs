@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 /// <summary>
 /// ゴーレムの挙動を制御するクラス
@@ -11,6 +12,8 @@ public class Golem : MonoBehaviour
     SoundManager soundManager; // サウンドマネージャー
     Boss_SoundList bossSoundList; // ゴーレムのサウンドリスト
     BossHPBar bossHPBar; // HPバー
+    [HideInInspector] public int hp;
+    GameManager gm;
 
     Animator anim; // アニメーターコンポーネント
 
@@ -19,6 +22,9 @@ public class Golem : MonoBehaviour
     public GameObject enemy01;
     int lastSpawnPos;
 
+    // === 波動攻撃 === 
+    public Transform hadouPos;
+    public GameObject hadouEffect;
 
     float attackCooldown = 0; // 攻撃のクールダウン
     GameObject player; //プレイヤーのbody
@@ -35,10 +41,14 @@ public class Golem : MonoBehaviour
         soundManager = FindObjectOfType<SoundManager>();
         bossSoundList = FindObjectOfType<Boss_SoundList>();
         bossHPBar = FindObjectOfType<BossHPBar>();
+        gm = FindObjectOfType<GameManager>();
     }
 
     void Update()
     {
+        if(gm.gameOver) return;
+        if(hp <= 0) return;
+
         if(attackCooldown <= 0)
         {
             int rnd;
@@ -76,26 +86,52 @@ public class Golem : MonoBehaviour
     void Attack1()
     {
         anim.SetTrigger("Rage");
+        gm.Shake(1f, 0.9f, 50, 90);
+
         //Rage音を再生
         soundManager.OnPlaySE(audioSource, bossSoundList.rageSound);
         attackCooldown = 10f;
 
         //敵をスポーンさせる
-        int rnd;
-        do rnd = Random.Range(0, enemySpawnPos.Count);
-        while (lastSpawnPos == rnd); // 前回と同じスポーン位置は避ける
-        Instantiate(enemy01, enemySpawnPos[rnd].position, enemySpawnPos[rnd].rotation);
-        lastSpawnPos = rnd; // 最後のスポーン位置を更新
+        int spawnCount = Random.Range(1, 5); // 1〜4体出す
+
+        // シャッフル（被り防止）
+        List<Transform> shuffled = new List<Transform>(enemySpawnPos);
+
+        for (int i = 0; i < shuffled.Count; i++) //ランダムに並べ替える
+        {
+            int rnd = Random.Range(i, shuffled.Count);
+            var temp = shuffled[i];
+            shuffled[i] = shuffled[rnd];
+            shuffled[rnd] = temp;
+        }
+
+        // スポーン
+        for (int i = 0; i < spawnCount && i < shuffled.Count; i++)
+        {
+            Instantiate(enemy01, shuffled[i].position, shuffled[i].rotation);
+        }
+        // int rnd;
+        // do rnd = Random.Range(0, enemySpawnPos.Count);
+        // while (lastSpawnPos == rnd); // 前回と同じスポーン位置は避ける
+        // Instantiate(enemy01, enemySpawnPos[rnd].position, enemySpawnPos[rnd].rotation);
+        // lastSpawnPos = rnd; // 最後のスポーン位置を更新
     }
-    //攻撃パターン2
+    //攻撃パターン2 (波動攻撃)
     void Attack2()
     {
         anim.SetTrigger("Hit");
-        attackCooldown = 5f;
+        Instantiate(hadouEffect, hadouPos.transform.position, hadouEffect.transform.rotation); //エフェクト
+        gm.Shake(0.7f, 0.6f, 30, 90);
+        soundManager.OnPlaySE(audioSource, bossSoundList.hadouAttackSound, 3f); //音
+        attackCooldown = 8f;
     }
     //攻撃パターン3 (投げる攻撃)
     void Attack3()
     {
+        //音
+        soundManager.OnPlaySE(audioSource, bossSoundList.throwSound, 3f);
+
         anim.SetTrigger("Hit2");
         int rnd = Random.Range(1, 5);
         if(rnd == 1) Instantiate(throwObj, throwObj_Pos[0].position, Quaternion.identity);
@@ -123,6 +159,8 @@ public class Golem : MonoBehaviour
     //衝突判定
     void OnTriggerEnter(Collider other)
     {
+        if(hp <= 0) return;
+
         //岩
         if(other.gameObject.CompareTag("Stone"))
         {
@@ -139,10 +177,22 @@ public class Golem : MonoBehaviour
         }
     }
 
+    //Dieアニメーションが終了時に呼ばれる
+    public void BossDie()
+    {
+        gm.gameClear = true;
+    }
+
     //ダメージを受ける関数
     public void TakeDamage(int damage)
     {
+        hp -= damage;
         bossHPBar.UpdateHPBar(damage);
-        Debug.Log("ダメージ: "+damage);
+        Debug.Log("ダメージ: "+ damage);
+
+        if(hp <= 0)
+        {
+            anim.SetTrigger("Die");
+        }
     }
 }

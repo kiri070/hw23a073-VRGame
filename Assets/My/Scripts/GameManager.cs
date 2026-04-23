@@ -1,9 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
+    public Transform mainCamera;
+
+    [HideInInspector] public bool gameClear = false;
+    [HideInInspector] public bool gameOver = false;
+    public GameObject clearImage;
+    public GameObject gameOverImage;
+
     //難易度
     public enum Difficulty
     {
@@ -19,7 +27,15 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        
+        //ゲームをクリアしたら
+        if(gameClear)
+        {
+            clearImage.SetActive(true);
+        }
+        else if(gameOver && !gameClear)
+        {
+            gameOverImage.SetActive(true);
+        }      
     }
 
     /// <summary>
@@ -33,5 +49,22 @@ public class GameManager : MonoBehaviour
         Time.timeScale = timeScale;
         yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = 1f; // 時間を戻す
+    }
+
+    /// <summary>
+    /// カメラを揺らす関数
+    /// </summary>
+    /// <param name="time">揺れる時間</param>
+    /// <param name="power">揺れの強さ</param>
+    /// <param name="vaibration">揺れ回数</param>
+    /// <param name="random">ランダム度</param>
+    public void Shake(float time, float power, int vaibration, int random)
+    {
+        mainCamera.DOShakePosition(
+            duration: time,   // 揺れる時間
+            strength: power,   // 揺れの強さ
+            vibrato: vaibration,      // 揺れ回数
+            randomness: random    // ランダム度
+        );
     }
 }

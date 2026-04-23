@@ -6,12 +6,19 @@ public class Enemy01 : MonoBehaviour
 {
     // === ステータス ===
     public int hp = 100;
+
     [HideInInspector] public bool death = false;
     Animator anim;
     Enemy01Detector enemy01Detector;
     EnemyChase enemyChase;
     public GameObject punchCollider;
 
+    //サウンド
+    AudioSource audioSource;
+    Enemy01_SoundList enemy01_SoundList;
+    SoundManager sm;
+
+    Golem golem;
     
 
     void Start()
@@ -19,12 +26,18 @@ public class Enemy01 : MonoBehaviour
         anim = GetComponent<Animator>();
         enemy01Detector = GetComponentInChildren<Enemy01Detector>();
         enemyChase = GetComponent<EnemyChase>();
+        audioSource = GetComponent<AudioSource>();
+        enemy01_SoundList = GetComponent<Enemy01_SoundList>();
+        sm = FindObjectOfType<SoundManager>();
+
+        golem = FindObjectOfType<Golem>();
     }
 
     // === 攻撃開始・終了処理 === //
     public void Enemy01_AttackStart()
     {
         punchCollider.SetActive(true);
+        sm.OnPlaySE(audioSource, enemy01_SoundList.attackSound);
     }
     public void Enemy01_AttackEnd()
     {
@@ -57,6 +70,9 @@ public class Enemy01 : MonoBehaviour
     //死んだとき
     void Die()
     {
+        punchCollider.SetActive(false);
+        golem.TakeDamage(3); //ボスにダメージ
+        sm.OnPlaySE(audioSource, enemy01_SoundList.deathSound, 3f);
         death = true;
         punchCollider.SetActive(false);
         enemyChase.chase = false;

@@ -7,27 +7,33 @@ public class BossHPBar : MonoBehaviour
 {
     GameManager gm; // ゲームマネージャー
     public Slider hpbar;
-    [HideInInspector] public float maxHP;
+    [HideInInspector] public int maxHP;
+    public Text hpText;
 
+    Golem golem;
     void Start()
     {
         gm = FindObjectOfType<GameManager>(); // ゲームマネージャーを取得
+        golem = FindObjectOfType<Golem>();
+
         // 難易度に応じてHPバーの最大値を設定
         if(gm.difficulty == GameManager.Difficulty.Easy)
         {
-            hpbar.maxValue = 200f; // 簡単な難易度の最大HP
+            maxHP = 100; // 簡単な難易度の最大HP
         }
         else if(gm.difficulty == GameManager.Difficulty.Normal)
         {
-            hpbar.maxValue = 300f; // 普通の難易度の最大HP
+            maxHP = 200; // 普通の難易度の最大HP
         }
         else if(gm.difficulty == GameManager.Difficulty.Hard)
         {
-            hpbar.maxValue = 500f; // 難しい難易度の最大HP
+            maxHP = 500; // 難しい難易度の最大HP
         }
         //HPバーに最大HPを設定
-        maxHP = hpbar.maxValue;
+        hpbar.maxValue = maxHP;
         hpbar.value = maxHP;
+        golem.hp = maxHP;
+        UpdateHPBar(0); //初期設定用
     }
 
     /// <summary>
@@ -37,6 +43,6 @@ public class BossHPBar : MonoBehaviour
     public void UpdateHPBar(float damage)
     {
         hpbar.value -= damage;
-        
+        hpText.text = ((float)golem.hp / maxHP * 100).ToString("F0") + "%";
     }
 }
