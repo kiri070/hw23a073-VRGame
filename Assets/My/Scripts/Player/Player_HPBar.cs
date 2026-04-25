@@ -15,8 +15,13 @@ public class Player_HPBar : MonoBehaviour
     void Start()
     {
         body = FindObjectOfType<Body>();
+        gm = FindObjectOfType<GameManager>();
 
         //HPバーに最大HPを設定
+        if(gm.difficulty == GameManager.Difficulty.Easy) body.hp = 250;
+        if(gm.difficulty == GameManager.Difficulty.Normal) body.hp = 200;
+        if(gm.difficulty == GameManager.Difficulty.Hard) body.hp = 150;
+
         maxHP = body.hp;
         hpbar.maxValue = maxHP;
         hpbar.value = maxHP;

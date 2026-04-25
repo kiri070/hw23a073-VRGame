@@ -11,6 +11,7 @@ public class Enemy01Detector : MonoBehaviour
     public float attackDistance = 2f;
     EnemyChase enemyChase;
     Enemy01 enemy01;
+    GameManager gm;
 
     void OnDrawGizmos()
     {
@@ -31,11 +32,13 @@ public class Enemy01Detector : MonoBehaviour
     {
         enemyChase = GetComponentInParent<EnemyChase>();
         enemy01 = GetComponentInParent<Enemy01>();
+        gm = FindObjectOfType<GameManager>();
     }
 
     void OnTriggerStay(Collider other)
     {
         if(enemy01.death) return;
+        if(gm.gameClear || gm.gameOver) return;
         
         if (other.CompareTag("Player"))
         {

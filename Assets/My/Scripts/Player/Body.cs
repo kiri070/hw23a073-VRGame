@@ -7,7 +7,7 @@ public class Body : MonoBehaviour
 {
     Player_HPBar player_HPBar;
     // === プレイヤー情報 === //
-    public int hp = 100;
+    [HideInInspector] public int hp = 100;
 
     CharacterController controller;
     //ノックバック関連
@@ -108,6 +108,8 @@ public class Body : MonoBehaviour
     public void TakeDamage(int damage)
     {
         hp -= damage;
+        if(hp < 0) hp = 0;
+        
         sm.OnPlaySE(audioSource, player_SoundList.punchDamageSound, 3f);
         player_HPBar.UpdateHPBar(damage); //HPバー更新
         Debug.Log("プレイヤーHP:" + hp);

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,6 +12,16 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public bool gameOver = false;
     public GameObject clearImage;
     public GameObject gameOverImage;
+    bool gameSet = false;
+
+    System_SoundList system_SoundList;
+    SoundManager sm;
+    AudioSource audioSource;
+
+    // === ボスのスポーン ===
+    public Transform bossSpawnEffect_Pos;
+    public GameObject bossSpawnEffect;
+    public GameObject bossObj;
 
     //難易度
     public enum Difficulty
@@ -20,9 +31,36 @@ public class GameManager : MonoBehaviour
         Hard
     }
     public Difficulty difficulty; // 難易度の変数
+
+    //ボススポーン処理
+    IEnumerator BossSpawn()
+    {
+        sm.OnPlaySE(audioSource, system_SoundList.spawnBoss01Sound, 2f);
+        yield return new WaitForSeconds(1.5f);
+        
+        //エフェクト生成
+        Instantiate(bossSpawnEffect, bossSpawnEffect_Pos.position, bossSpawnEffect.transform.rotation);
+        sm.OnPlaySE(audioSource, system_SoundList.spawnBoss02Sound, 2f);
+        yield return new WaitForSeconds(3f);
+
+        //ボスを表示
+        bossObj.SetActive(true);
+    }
     void Start()
     {
-        difficulty = Difficulty.Normal; // デフォルトの難易度をNormalに設定
+        system_SoundList = GetComponent<System_SoundList>();
+        sm = FindObjectOfType<SoundManager>();
+        audioSource = GetComponent<AudioSource>();
+
+        //難易度を取得
+        string getDifficulty = PlayerPrefs.GetString("Difficulty");
+        if(getDifficulty == "Easy") difficulty = Difficulty.Easy; 
+        if(getDifficulty == "Normal") difficulty = Difficulty.Normal; 
+        if(getDifficulty == "Hard") difficulty = Difficulty.Hard; 
+
+        //ボスの召喚
+        StartCoroutine(BossSpawn());
+        
     }
 
     void Update()
@@ -31,10 +69,12 @@ public class GameManager : MonoBehaviour
         if(gameClear)
         {
             clearImage.SetActive(true);
+            GotoTitleScene();
         }
         else if(gameOver && !gameClear)
         {
             gameOverImage.SetActive(true);
+            GotoTitleScene();
         }      
     }
 
@@ -66,5 +106,20 @@ public class GameManager : MonoBehaviour
             vibrato: vaibration,      // 揺れ回数
             randomness: random    // ランダム度
         );
+    }
+
+    //タイトルシーンに戻る
+    void GotoTitleScene()
+    {
+        if(!gameSet) StartCoroutine(DelayTitleScene());
+        gameSet = true;
+    }
+
+    IEnumerator DelayTitleScene()
+    {
+        if(gameOver) sm.OnPlaySE(audioSource, system_SoundList.gameOverSound, 2f);
+        if(gameClear) sm.OnPlaySE(audioSource, system_SoundList.gameClearSound, 2f);
+        yield return new WaitForSeconds(7f);
+        SceneManager.LoadScene("TitleScene");
     }
 }

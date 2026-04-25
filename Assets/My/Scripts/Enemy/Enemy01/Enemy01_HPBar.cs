@@ -3,36 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BossHPBar : MonoBehaviour
+public class Enemy01_HPBar : MonoBehaviour
 {
     GameManager gm; // ゲームマネージャー
     public Slider hpbar;
     [HideInInspector] public int maxHP;
     public Text hpText;
+    public Enemy01 enemy01;
 
-    Golem golem;
     void Start()
     {
         gm = FindObjectOfType<GameManager>(); // ゲームマネージャーを取得
-        golem = FindObjectOfType<Golem>();
 
         // 難易度に応じてHPバーの最大値を設定
         if(gm.difficulty == GameManager.Difficulty.Easy)
         {
-            maxHP = 150; // 簡単な難易度の最大HP
+            maxHP = 50; // 簡単な難易度の最大HP
         }
         else if(gm.difficulty == GameManager.Difficulty.Normal)
         {
-            maxHP = 250; // 普通の難易度の最大HP
+            maxHP = 100; // 普通の難易度の最大HP
         }
         else if(gm.difficulty == GameManager.Difficulty.Hard)
         {
-            maxHP = 500; // 難しい難易度の最大HP
+            maxHP = 150; // 難しい難易度の最大HP
         }
         //HPバーに最大HPを設定
         hpbar.maxValue = maxHP;
         hpbar.value = maxHP;
-        golem.hp = maxHP;
+        enemy01.hp = maxHP;
         UpdateHPBar(0); //初期設定用
     }
 
@@ -43,6 +42,7 @@ public class BossHPBar : MonoBehaviour
     public void UpdateHPBar(float damage)
     {
         hpbar.value -= damage;
-        hpText.text = ((float)golem.hp / maxHP * 100).ToString("F0") + "%";
+        if(hpbar.value < 0) hpbar.value = 0;
+        hpText.text = ((float)enemy01.hp / maxHP * 100).ToString("F0") + "%";
     }
 }

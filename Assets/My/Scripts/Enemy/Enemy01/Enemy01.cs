@@ -13,12 +13,16 @@ public class Enemy01 : MonoBehaviour
     EnemyChase enemyChase;
     public GameObject punchCollider;
 
+    // === エフェクト ===
+    public GameObject deathEffect;
+
     //サウンド
     AudioSource audioSource;
     Enemy01_SoundList enemy01_SoundList;
     SoundManager sm;
 
     Golem golem;
+    Enemy01_HPBar enemy01_HPBar;
     
 
     void Start()
@@ -31,6 +35,7 @@ public class Enemy01 : MonoBehaviour
         sm = FindObjectOfType<SoundManager>();
 
         golem = FindObjectOfType<Golem>();
+        enemy01_HPBar = GetComponentInChildren<Enemy01_HPBar>();
     }
 
     // === 攻撃開始・終了処理 === //
@@ -64,6 +69,8 @@ public class Enemy01 : MonoBehaviour
     public void TakeDamage(int damage)
     {
         hp -= damage;
+        if(hp < 0) hp = 0;
+        enemy01_HPBar.UpdateHPBar(damage);
         if(hp <= 0 && !death) Die();
 
     }
@@ -71,7 +78,7 @@ public class Enemy01 : MonoBehaviour
     void Die()
     {
         punchCollider.SetActive(false);
-        golem.TakeDamage(3); //ボスにダメージ
+        golem.TakeDamage(20); //ボスにダメージ
         sm.OnPlaySE(audioSource, enemy01_SoundList.deathSound, 3f);
         death = true;
         punchCollider.SetActive(false);
@@ -85,7 +92,10 @@ public class Enemy01 : MonoBehaviour
     //Deathアニメーションが終了したら呼ばれる
     public void DeathAnim_End()
     {
-        Destroy(this.gameObject);
+        //エフェクト
+        Instantiate(deathEffect, new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z),
+            deathEffect.transform.rotation);
+        Destroy(gameObject);
     }
     
 }

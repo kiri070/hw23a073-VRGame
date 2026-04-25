@@ -19,8 +19,8 @@ public class Sword_red : MonoBehaviour
 
 
     Golem golem;
-    XRBaseController rightController;
-    XRBaseController leftController;
+    [HideInInspector] public XRBaseController rightController;
+    [HideInInspector] public XRBaseController leftController;
     Transform leftHand;
     GameManager gm;
     SoundManager sm;
@@ -299,7 +299,7 @@ public class Sword_red : MonoBehaviour
     }
 
     // ===== 振動 =====
-    void SendHaptic(float amplitude, float duration, XRBaseController controller)
+    public void SendHaptic(float amplitude, float duration, XRBaseController controller)
     {
         if (controller != null)
         {
@@ -328,12 +328,14 @@ public class Sword_red : MonoBehaviour
 
             //攻撃処理
             Enemy01 enemy01 = other.GetComponent<Enemy01>();
+            Enemy01_HPBar enemy01_HPBar = other.gameObject.GetComponentInChildren<Enemy01_HPBar>();
             if(enchantLevel == 0) enemy01.TakeDamage(50);
-            if(enchantLevel == 1) enemy01.TakeDamage(60);
-            if(enchantLevel == 2) enemy01.TakeDamage(70);
-            if(enchantLevel == 3) enemy01.TakeDamage(100);
-            
-            StartCoroutine(gm.HitStop(0.7f, 0.7f));
+            if(enchantLevel == 1) enemy01.TakeDamage(70);
+            if(enchantLevel == 2) enemy01.TakeDamage(100);
+            if(enchantLevel == 3) enemy01.TakeDamage(150);
+
+            SendHaptic(1f, 0.5f, rightController);  //振動
+            StartCoroutine(gm.HitStop(0.7f, 0.7f)); //ヒットストップ
             sm.OnPlaySE(audioSource, swordSoundList.hitSwordSound, 3f);
         }
     }
