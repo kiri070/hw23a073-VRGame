@@ -32,9 +32,17 @@ public class Golem : MonoBehaviour
     public GameObject enemy01_SpawnEffect;
     int lastSpawnPos;
 
+    //落雷
+    public GameObject lightningArea_Effect; //予測エリアのエフェクト
+    public List<Transform> lightningArea_Pos = new List<Transform>(); //予測エリアを出す場所
+
     // === 波動攻撃 === 
+    //波動パターン1
     public Transform hadouPos;
     public GameObject hadouEffect;
+    //波動パターン2
+    public List<Transform> hadou02_Pos = new List<Transform>();
+    public GameObject hadou02_Effect;
 
     float attackCooldown = 0; // 攻撃のクールダウン
     GameObject player; //プレイヤーのbody
@@ -112,17 +120,144 @@ public class Golem : MonoBehaviour
 
         //Rage音を再生
         soundManager.OnPlaySE(audioSource, bossSoundList.rageSound);
-        attackCooldown = 10f;
+        attackCooldown = 10f; 
 
-        StartCoroutine(SpawnEnemy01());
+        //難易度がイージーなら敵をスポーンさせるだけ
+        if(gm.difficulty == GameManager.Difficulty.Easy)
+        {
+            StartCoroutine(SpawnEnemy01());
+        }
+        else
+        {
+            int rnd = 0;
+            //ノーマル
+            if(gm.difficulty == GameManager.Difficulty.Normal)
+            {
+                rnd = Random.Range(0, 2);
+                switch (rnd)
+                {
+                    case 0:
+                        StartCoroutine(SpawnEnemy01());
+                    break;
+                    case 1:
+                        int thunderCount = Random.Range(1, 3);
+
+                        List<Transform> tempList = new List<Transform>(lightningArea_Pos);
+
+                        for (int i = 0; i < thunderCount && tempList.Count > 0; i++)
+                        {
+                            int rand = Random.Range(0, tempList.Count);
+
+                            Instantiate(
+                                lightningArea_Effect,
+                                tempList[rand].position,
+                                lightningArea_Effect.transform.rotation
+                            );
+
+                            tempList.RemoveAt(rand);
+                        }
+                    break;
+                }
+            }
+            //ハード
+            if(gm.difficulty == GameManager.Difficulty.Hard)
+            {
+                rnd = Random.Range(0, 5);
+
+                switch (rnd)
+                {
+                    // 敵スポーン
+                    case 0:
+                        StartCoroutine(SpawnEnemy01());
+                    break;
+
+                    // 雷2～4個
+                    case 1:
+                        int thunderCount = Random.Range(2, 5);
+
+                        List<Transform> tempList = new List<Transform>(lightningArea_Pos);
+
+                        for (int i = 0; i < thunderCount && tempList.Count > 0; i++)
+                        {
+                            int rand = Random.Range(0, tempList.Count);
+
+                            Instantiate(
+                                lightningArea_Effect,
+                                tempList[rand].position,
+                                lightningArea_Effect.transform.rotation
+                            );
+
+                            tempList.RemoveAt(rand);
+                        }
+                    break;
+
+                    // 敵 + 雷2個
+                    case 2:
+                        StartCoroutine(SpawnEnemy01());
+
+                        for (int i = 0; i < 2 && i < lightningArea_Pos.Count; i++)
+                        {
+                            int rand = Random.Range(0, lightningArea_Pos.Count);
+
+                            Instantiate(
+                                lightningArea_Effect,
+                                lightningArea_Pos[rand].position,
+                                lightningArea_Effect.transform.rotation
+                            );
+                        }
+                    break;
+
+                    // 雷全地点
+                    case 3:
+                        for (int i = 0; i < lightningArea_Pos.Count; i++)
+                        {
+                            Instantiate(
+                                lightningArea_Effect,
+                                lightningArea_Pos[i].position,
+                                lightningArea_Effect.transform.rotation
+                            );
+                        }
+                    break;
+
+                    // 敵大量
+                    case 4:
+                        StartCoroutine(SpawnEnemy01());
+                    break;
+                }
+            }
+        }
     }
     //攻撃パターン2 (波動攻撃)
     void Attack2()
     {
         anim.SetTrigger("Hit");
-        Instantiate(hadouEffect, hadouPos.transform.position, hadouEffect.transform.rotation); //エフェクト
-        gm.Shake(0.7f, 0.6f, 30, 90);
-        soundManager.OnPlaySE(audioSource, bossSoundList.hadouAttackSound, 3f); //音
+        //攻撃パターンを抽出
+        int rnd = 0; //宣言
+        //難易度がイージーなら
+        if(gm.difficulty == GameManager.Difficulty.Easy) rnd = Random.Range(0, 1);
+        //それ以上なら
+        else rnd = Random.Range(0, 2);
+        
+        switch(rnd)
+        {
+            //玉の攻撃
+            case 0:
+                Instantiate(hadouEffect, hadouPos.transform.position, hadouEffect.transform.rotation); //エフェクト
+                gm.Shake(0.7f, 0.6f, 30, 90);
+                soundManager.OnPlaySE(audioSource, bossSoundList.hadouAttackSound, 3f); //音
+            break;
+            //波上の攻撃
+            case 1:
+                gm.Shake(0.7f, 0.6f, 30, 90);
+                for(int i = 0; i < hadou02_Pos.Count; i++)
+                {
+                    
+                    Instantiate(hadou02_Effect, hadou02_Pos[i].transform.position, hadou02_Effect.transform.rotation);
+                    soundManager.OnPlaySE(audioSource, bossSoundList.hadouAttackSound, 3f); //音
+                }
+            break;
+        }
+
         attackCooldown = 8f;
     }
     //攻撃パターン3 (投げる攻撃)

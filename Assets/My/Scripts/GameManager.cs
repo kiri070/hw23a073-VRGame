@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
     public GameObject bossSpawnEffect;
     public GameObject bossObj;
 
+    //クリア時のエフェクト
+    public GameObject clearEffect_Group;
+
     //難易度
     public enum Difficulty
     {
@@ -118,7 +121,11 @@ public class GameManager : MonoBehaviour
     IEnumerator DelayTitleScene()
     {
         if(gameOver) sm.OnPlaySE(audioSource, system_SoundList.gameOverSound, 2f);
-        if(gameClear) sm.OnPlaySE(audioSource, system_SoundList.gameClearSound, 2f);
+        if(gameClear)
+        {
+            sm.OnPlaySE(audioSource, system_SoundList.gameClearSound, 2f);
+            clearEffect_Group.SetActive(true);
+        }
         yield return new WaitForSeconds(7f);
         SceneManager.LoadScene("TitleScene");
     }

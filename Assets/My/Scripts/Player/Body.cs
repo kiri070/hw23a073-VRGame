@@ -27,6 +27,9 @@ public class Body : MonoBehaviour
 
     GameManager gm;
 
+    //エフェクト
+    public GameObject respawnEffect;
+
     void Start()
     {
         lastY = Camera.main.transform.eulerAngles.y;
@@ -123,8 +126,12 @@ public class Body : MonoBehaviour
             controller.enabled = false;
             controller.transform.position = playerSpawnPos.position;
             controller.enabled = true;
+
+            //エフェクト
+            Instantiate(respawnEffect, playerSpawnPos.transform.position, respawnEffect.transform.rotation);
         }
     }
+
 
     //無敵時間の管理
     IEnumerator Calculation_InvisibleTime()
