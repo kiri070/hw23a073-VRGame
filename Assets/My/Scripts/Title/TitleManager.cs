@@ -22,35 +22,64 @@ public class TitleManager : MonoBehaviour
     public GameObject selectNormalObj;
     public GameObject selectHardObj;
 
+    public GameObject hardEffect;
+
+    //音声
+    SoundManager sm;
+    TitleSoundList titleSoundList;
+    AudioSource audioSource;
+
     void Start()
     {
-        OnNormalButton(); //初期難易度はNormal
+        
         // 最初はロード画面を非表示
         if (loadingUI != null)
             loadingUI.SetActive(false);
+
+        sm = FindObjectOfType<SoundManager>();
+        titleSoundList = FindObjectOfType<TitleSoundList>();
+        audioSource = this.gameObject.GetComponent<AudioSource>();
+
+        OnNormalButton(); //初期難易度はNormal
     }
 
     //難易度ボタン
     public void OnEasyButton()
     {
+        //音声
+        sm.OnPlaySE(audioSource, titleSoundList.clickSound);
+
         PlayerPrefs.SetString("Difficulty", "Easy");
         selectEasyObj.SetActive(true);
         selectNormalObj.SetActive(false);
         selectHardObj.SetActive(false);
+
+        hardEffect.SetActive(false);
+
     }
     public void OnNormalButton()
     {
+        //音声
+        sm.OnPlaySE(audioSource, titleSoundList.clickSound);
+
         PlayerPrefs.SetString("Difficulty", "Normal");
         selectEasyObj.SetActive(false);
         selectNormalObj.SetActive(true);
         selectHardObj.SetActive(false);
+
+        hardEffect.SetActive(false);
     }
     public void OnHardButton()
     {
+        //音声
+        sm.OnPlaySE(audioSource, titleSoundList.clickSound);
+
         PlayerPrefs.SetString("Difficulty", "Hard");
         selectEasyObj.SetActive(false);
         selectNormalObj.SetActive(false);
         selectHardObj.SetActive(true);
+
+        hardEffect.SetActive(true);
     }
 
     //プレイボタン
