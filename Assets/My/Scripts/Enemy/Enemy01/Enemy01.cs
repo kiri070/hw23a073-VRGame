@@ -88,11 +88,24 @@ public class Enemy01 : MonoBehaviour
     //死んだとき
     void Die()
     {
+        // 物理演算をオフにして落下を防ぐ
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+        }
+
+        // 全てのコライダーをオフにする
+        Collider[] colliders = GetComponentsInChildren<Collider>();
+        foreach (Collider col in colliders)
+        {
+            col.enabled = false;
+        }
+
         punchCollider.SetActive(false);
         golem.TakeDamage(20); //ボスにダメージ
         sm.OnPlaySE(audioSource, enemy01_SoundList.deathSound, 3f);
         death = true;
-        punchCollider.SetActive(false);
         enemyChase.chase = false;
         ChangeAnim("Punch", false);
         ChangeAnim("Walk1", false);

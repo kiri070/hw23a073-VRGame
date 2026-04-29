@@ -101,7 +101,13 @@ public class Stone : MonoBehaviour
                 sword_enchantLevel = sword_Red.enchantLevel; //エンチャントレベル
             }
         }
+        //スキル1
         if(other.CompareTag("Skill"))
+        {
+            sword_enchantLevel = sword_Red.currentSkillLevel; //エンチャントレベル
+        }
+        //スキル2
+        if(other.CompareTag("Skill2"))
         {
             sword_enchantLevel = sword_Red.currentSkillLevel; //エンチャントレベル
         }
@@ -117,7 +123,7 @@ public class Stone : MonoBehaviour
             soundManager.OnPlaySE(audioSource, stoneSoundList.impactSound01, 2f);
             StartCoroutine(DestroyAfterSound(stoneSoundList.impactSound01.length));
         }
-        if(other.gameObject.CompareTag("Skill") && !reflectioned)
+        if(other.gameObject.CompareTag("Skill") && !reflectioned || other.gameObject.CompareTag("Skill2") && !reflectioned)
         {
             Instantiate(reflection_Effect, transform.position, Quaternion.identity); // 跳ね返りエフェクトを生成
             GameObject flictionFire_Effect = transform.Find("FlictionFire").gameObject;
@@ -126,7 +132,7 @@ public class Stone : MonoBehaviour
             rb.velocity = Vector3.zero; // 一旦速度をリセット
             isHitSword = true;
             reflectioned = true; //反射されたフラグを立てる
-            StartCoroutine(gm.HitStop(0.5f, 0.2f)); // ヒットストップ
+            gm.StartHitStop(0.5f, 0.2f); // ヒットストップ
         }
     }
 

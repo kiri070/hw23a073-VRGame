@@ -17,6 +17,12 @@ public class Golem : MonoBehaviour
     GameManager gm;
     public GameObject bgm_Obj;
 
+    //ダウン状態関連
+    int hitStone_Count = 0;
+    [HideInInspector]public bool isDown = false;
+    public GameObject skill2_DownEffect;
+    public GameObject skill2_NotDownEffect;
+
     // === ボスのムービー ===
    bool bossMovie = true;
    bool introStart = false;
@@ -62,6 +68,7 @@ public class Golem : MonoBehaviour
         bossSoundList = FindObjectOfType<Boss_SoundList>();
         bossHPBar = FindObjectOfType<BossHPBar>();
         gm = FindObjectOfType<GameManager>();
+        sword_Red = FindObjectOfType<Sword_red>();
     }
 
     void Update()
@@ -79,7 +86,7 @@ public class Golem : MonoBehaviour
         if(gm.gameOver) return;
         if(hp <= 0) return;
 
-        if(attackCooldown <= 0)
+        if(attackCooldown <= 0 && !isDown)
         {
             int rnd;
             
@@ -298,6 +305,18 @@ public class Golem : MonoBehaviour
         //岩
         if(other.gameObject.CompareTag("Stone"))
         {
+            // ダウン中はダメージを受けない
+            if (isDown) return;
+
+            hitStone_Count++; //岩に当たった回数
+            if(hitStone_Count >= 5)
+            {
+                //ダウン処理
+                isDown = true;                  //ダウン判定
+                anim.SetTrigger("SleepStart");  //ダウンアニメーション開始
+                StartCoroutine(BossDown());     //ダウン回復時間計測
+            }
+
             //ダメージを受ける
             Damage();
             soundManager.OnPlaySE(audioSource, bossSoundList.damageSound);
@@ -308,6 +327,26 @@ public class Golem : MonoBehaviour
             if(stone.sword_enchantLevel == 1) TakeDamage(20);
             if(stone.sword_enchantLevel == 2) TakeDamage(25);
             if(stone.sword_enchantLevel == 3) TakeDamage(30);
+        }
+        //スキル2
+        if(other.gameObject.CompareTag("Skill2"))
+        {
+            //通常状態なら
+            if(!isDown)
+            {
+                Instantiate(skill2_NotDownEffect, other.gameObject.transform.position, skill2_NotDownEffect.transform.rotation);
+                // 親オブジェクトを破棄
+                Destroy(other.transform.parent.gameObject);
+            }
+            //ダウン状態なら
+            else 
+            {
+                soundManager.OnPlaySE(audioSource, bossSoundList.damageSound);
+                Instantiate(skill2_DownEffect, other.gameObject.transform.position, skill2_DownEffect.transform.rotation);
+                TakeDamage(15);
+                // 親オブジェクトを破棄
+                Destroy(other.transform.parent.gameObject);
+            }
         }
     }
 
@@ -429,6 +468,20 @@ public class Golem : MonoBehaviour
 
         bgm_Obj.SetActive(true); //BGMをオン
         introEnd = true; //ムービー終了
+    }
+
+    // === ダウン処理 ===
+    IEnumerator BossDown()
+    {
+        yield return new WaitForSeconds(10f);
+        anim.SetTrigger("SleepEnd");
+    }
+    //スリープアニメーションが終了したら呼ばれる関数
+    public void SleepEnded()
+    {
+        isDown = false; //ダウン判定をオフ
+        hitStone_Count = 0; //ヒットカウントをリセット
+        attackCooldown = 0; //クールダウンをリセット
     }
 
     //ダメージを受ける関数

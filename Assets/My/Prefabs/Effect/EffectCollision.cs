@@ -9,6 +9,7 @@ public class EffectCollision : MonoBehaviour
 
     void Start()
     {
+        gm = FindObjectOfType<GameManager>();
         sword_Red = FindObjectOfType<Sword_red>();
     }
 
@@ -18,11 +19,19 @@ public class EffectCollision : MonoBehaviour
         {
             //攻撃処理
             Enemy01 enemy01 = other.GetComponent<Enemy01>();
-            enemy01.TakeDamage(100);
-            gm = FindObjectOfType<GameManager>();
+            if (enemy01 != null)
+            {
+                enemy01.TakeDamage(100);
+            }
 
-            sword_Red.SendHaptic(1f, 0.5f, sword_Red.rightController); //振動
-            StartCoroutine(gm.HitStop(0.7f, 0.7f));                    //ヒットストップ
+            if (sword_Red != null)
+            {
+                sword_Red.SendHaptic(1f, 0.5f, sword_Red.rightController); //振動
+            }
+            if (gm != null)
+            {
+                gm.StartHitStop(0.7f, 0.7f);                    //ヒットストップ
+            }
         }
     }
 }

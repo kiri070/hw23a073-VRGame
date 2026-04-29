@@ -14,6 +14,7 @@ public class Sword_red : MonoBehaviour
     public GameObject explosionEffect;
     public GameObject fireEffect;
     //エンチャントレベル2
+    public GameObject skill2Effect;
 
     //エンチャントレベル3
 
@@ -28,6 +29,7 @@ public class Sword_red : MonoBehaviour
     AudioSource audioSource;
     public Transform rootPoint;
     public Transform tipPoint;
+    public Transform skill2LaunchPoint;
 
     GameObject effect_level1;
     GameObject effect_level2;
@@ -280,6 +282,15 @@ public class Sword_red : MonoBehaviour
         else if(enchantLevel == 2)
         {
             Debug.Log("エンチャントレベル2のスキル発動");
+            // 剣のtipPoint - rootPointの方向を使う（槍のように刺す方向）
+            Vector3 swordDir = (tipPoint.position - rootPoint.position).normalized;
+            // Y軸方向を少し残す（0.5倍）
+            swordDir.y *= 0.5f;
+            Quaternion skillRotation = Quaternion.LookRotation(swordDir);
+            // skill2LaunchPointがあれば使う、なければtipPointを使う
+            Vector3 launchPos = skill2LaunchPoint != null ? skill2LaunchPoint.position : tipPoint.position;
+            Instantiate(skill2Effect, launchPos, skillRotation);
+            // sm.OnPlaySE(audioSource, swordSoundList.skill2Sound, 3f);
         }
         else if(enchantLevel == 3)
         {
@@ -312,7 +323,7 @@ public class Sword_red : MonoBehaviour
         //石の当たり判定
         if(other.gameObject.CompareTag("Stone") && !isAttack && isSwinging && isActivated)
         {
-            StartCoroutine(gm.HitStop(0.5f, 0.2f)); // ヒットストップ
+            gm.StartHitStop(0.5f, 0.2f); // ヒットストップ
             SendHaptic(1f, 0.5f, rightController);
             sm.OnPlaySE(audioSource, swordSoundList.flictionSound, 2f);
         }
@@ -335,7 +346,7 @@ public class Sword_red : MonoBehaviour
             if(enchantLevel == 3) enemy01.TakeDamage(150);
 
             SendHaptic(1f, 0.5f, rightController);  //振動
-            StartCoroutine(gm.HitStop(0.7f, 0.7f)); //ヒットストップ
+            gm.StartHitStop(0.7f, 0.7f); //ヒットストップ
             sm.OnPlaySE(audioSource, swordSoundList.hitSwordSound, 3f);
         }
     }

@@ -81,6 +81,8 @@ public class GameManager : MonoBehaviour
         }      
     }
 
+    Coroutine hitStopCoroutine;
+
     /// <summary>
     /// ヒットストップを行う関数
     /// </summary>
@@ -92,6 +94,26 @@ public class GameManager : MonoBehaviour
         Time.timeScale = timeScale;
         yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = 1f; // 時間を戻す
+        hitStopCoroutine = null;
+    }
+
+    public void StartHitStop(float duration, float timeScale)
+    {
+        if (hitStopCoroutine != null)
+        {
+            StopCoroutine(hitStopCoroutine);
+        }
+        hitStopCoroutine = StartCoroutine(HitStop(duration, timeScale));
+    }
+
+    public void StopHitStop()
+    {
+        if (hitStopCoroutine != null)
+        {
+            StopCoroutine(hitStopCoroutine);
+            hitStopCoroutine = null;
+        }
+        Time.timeScale = 1f;
     }
 
     /// <summary>

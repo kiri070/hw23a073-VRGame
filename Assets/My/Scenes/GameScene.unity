@@ -2481,6 +2481,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hp: 0
   bgm_Obj: {fileID: 638329047}
+  isDown: 0
+  skill2_DownEffect: {fileID: 2433282508537954060, guid: c1a220d3c1405b844be1a555fa417b65, type: 3}
+  skill2_NotDownEffect: {fileID: 8433079331162208932, guid: 3b7e489cc13dac144b93495cf5b38349, type: 3}
   landPoint: {fileID: 3227480}
   enemySpawnPos:
   - {fileID: 1497479905}

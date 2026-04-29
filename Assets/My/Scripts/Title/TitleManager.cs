@@ -132,6 +132,10 @@ public class TitleManager : MonoBehaviour
                 if (loadingText != null)
                     loadingText.text = "100%";
 
+                // クリーンアップ追加
+                Resources.UnloadUnusedAssets();
+                System.GC.Collect();
+
                 yield return new WaitForSeconds(0.5f);
                 load.allowSceneActivation = true;
             }

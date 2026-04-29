@@ -14,6 +14,7 @@ TagManager:
   - Enemy01_Punch
   - DeathGround
   - Lightning
+  - Skill2
   layers:
   - Default
   - TransparentFX
