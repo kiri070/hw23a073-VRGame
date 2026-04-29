@@ -8,6 +8,8 @@ public class Body : MonoBehaviour
     Player_HPBar player_HPBar;
     // === プレイヤー情報 === //
     [HideInInspector] public int hp = 100;
+    public float invincibleTime = 0.5f;
+    bool invincible = false;
 
     CharacterController controller;
     public Transform playerSpawnPos;
@@ -40,22 +42,29 @@ public class Body : MonoBehaviour
 
     void Update()
     {
-        Vector3 headPos = Camera.main.transform.position;
+        // Vector3 headPos = Camera.main.transform.position;
 
-        // 位置追従
-        transform.position = new Vector3(headPos.x, transform.position.y, headPos.z);
+        // // 位置追従
+        // transform.position = new Vector3(headPos.x, transform.position.y, headPos.z);
 
-        float currentY = Camera.main.transform.eulerAngles.y;
+        // float currentY = Camera.main.transform.eulerAngles.y;
 
-        // 回転差を計算
-        float diff = Mathf.Abs(Mathf.DeltaAngle(lastY, currentY));
+        // // 回転差を計算
+        // float diff = Mathf.Abs(Mathf.DeltaAngle(lastY, currentY));
 
-        // 一定以上向き変わったら回転
-        if (diff > 10f)
-        {
-            transform.rotation = Quaternion.Euler(0, currentY, 0);
-            lastY = currentY;
-        }
+        // // 一定以上向き変わったら回転
+        // if (diff > 10f)
+        // {
+        //     transform.rotation = Quaternion.Euler(0, currentY, 0);
+        //     lastY = currentY;
+        // }
+
+        //テスト(位置ずれ起きなさそう)
+        controller.center = new Vector3(
+        Camera.main.transform.localPosition.x,
+        controller.center.y,
+        Camera.main.transform.localPosition.z
+    );
     }
 
     // === ノックバック処理 === //
@@ -96,12 +105,16 @@ public class Body : MonoBehaviour
             TakeDamage(10);
             Knockback(other.transform.position); //ノックバック処理
             gm.Shake(0.7f, 0.7f, 40, 90); //カメラを揺らす
+
+            //無敵時間
+            StartCoroutine(Calculation_InvisibleTime());
         }
         //Bossの石に当たった時
         if(other.CompareTag("Stone"))
         {
             TakeDamage(10);
-            
+            //無敵時間
+            StartCoroutine(Calculation_InvisibleTime());
         }
         //落下判定
         if(other.CompareTag("DeathGround"))
@@ -113,9 +126,21 @@ public class Body : MonoBehaviour
         }
     }
 
+    //無敵時間の管理
+    IEnumerator Calculation_InvisibleTime()
+    {
+        invincible = true;
+        yield return new WaitForSeconds(invincibleTime);
+        invincible = false;
+    }
+
+
     //プレイヤーが攻撃を受ける関数
     public void TakeDamage(int damage)
     {
+        //無敵状態なら実行しない
+        if(invincible) return;
+
         hp -= damage;
         if(hp < 0) hp = 0;
         

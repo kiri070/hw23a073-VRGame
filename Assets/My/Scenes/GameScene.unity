@@ -15355,6 +15355,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hp: 100
+  invincibleTime: 0.5
   playerSpawnPos: {fileID: 1520422606}
 --- !u!82 &1298631847
 AudioSource:

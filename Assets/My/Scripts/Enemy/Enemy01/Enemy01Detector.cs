@@ -9,6 +9,7 @@ public class Enemy01Detector : MonoBehaviour
     [HideInInspector] public bool isChasing = false;
     [HideInInspector] public bool isAttacking = false;
     public float attackDistance = 2f;
+    [HideInInspector]public float defaultAttackDistance; //攻撃範囲を保存する変数
     EnemyChase enemyChase;
     Enemy01 enemy01;
     GameManager gm;
@@ -33,6 +34,8 @@ public class Enemy01Detector : MonoBehaviour
         enemyChase = GetComponentInParent<EnemyChase>();
         enemy01 = GetComponentInParent<Enemy01>();
         gm = FindObjectOfType<GameManager>();
+
+        defaultAttackDistance = attackDistance; //攻撃範囲を保存
     }
 
     void OnTriggerStay(Collider other)
@@ -42,6 +45,7 @@ public class Enemy01Detector : MonoBehaviour
         
         if (other.CompareTag("Player"))
         {
+
             Vector3 dir = (other.transform.position - transform.position).normalized;
             Vector3 forward = transform.forward;
 
@@ -54,13 +58,17 @@ public class Enemy01Detector : MonoBehaviour
                 // 攻撃距離
                 if (distance < attackDistance)
                 {
-                    if (!isAttacking) //isChasing && 
+                    if (enemy01.canAttack)
                     {
+                        
                         isAttacking = true;                 //攻撃フラグをオン
                         enemyChase.chase = false;           //追跡をオフ
-                        // enemy01.ChangeAnim("Walk1", false); //歩きをオフ
-                        enemy01.ChangeAnim("Punch", true);  //攻撃をオン
+                        enemy01.AnimTrigger("Punch");
                         isChasing = false;                  //行動重複防止
+
+
+                        enemy01.canAttack = false;
+                        attackDistance = 0f; // 攻撃中は停止()
                     }
                 }
                 //移動
@@ -69,9 +77,6 @@ public class Enemy01Detector : MonoBehaviour
                     if (!isChasing)
                     {
                         enemyChase.chase = true;           //追跡をオン
-
-                        // enemy01.ChangeAnim("Walk1", true); //歩きをオン
-
                         isChasing = true;                  
                     } 
                 }
@@ -81,7 +86,6 @@ public class Enemy01Detector : MonoBehaviour
             {
                 if (isChasing)
                 {
-                    // enemy01.ChangeAnim("Walk1", false);  //歩きをオフ
                     enemyChase.chase = false;            //追跡をオフ
 
                     isChasing = false;

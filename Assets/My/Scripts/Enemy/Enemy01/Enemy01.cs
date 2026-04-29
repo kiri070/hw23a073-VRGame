@@ -6,6 +6,7 @@ public class Enemy01 : MonoBehaviour
 {
     // === ステータス ===
     public int hp = 100;
+    [HideInInspector]public bool canAttack = true;
 
     [HideInInspector] public bool death = false;
     Animator anim;
@@ -47,10 +48,16 @@ public class Enemy01 : MonoBehaviour
     public void Enemy01_AttackEnd()
     {
         punchCollider.SetActive(false);      //コライダーをオフ
-        ChangeAnim("Punch", false);          //パンチをオフ
-        // ChangeAnim("Walk1", true);           //歩く
-        enemy01Detector.isChasing = true;    //追跡
-        enemy01Detector.isAttacking = false; //攻撃フラグをオフ
+
+        StartCoroutine(DelayAttack());       //攻撃クールタイム
+    }
+
+    //攻撃クールタイム管理
+    IEnumerator DelayAttack()
+    {
+        yield return new WaitForSeconds(2f);
+        enemy01Detector.attackDistance = enemy01Detector.defaultAttackDistance; //再度攻撃範囲を検出できるようにするため
+        canAttack = true; //攻撃可能フラグ
     }
 
 
@@ -62,6 +69,10 @@ public class Enemy01 : MonoBehaviour
     public void ChangeAnim(string animName, bool trigger)
     {
         anim.SetBool(animName, trigger);
+    }
+    public void AnimTrigger(string animName)
+    {
+        anim.SetTrigger(animName);
     }
 
     // === ダメージ処理 === //

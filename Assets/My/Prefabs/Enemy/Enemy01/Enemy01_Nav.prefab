@@ -1228,6 +1228,7 @@ MonoBehaviour:
   isChasing: 0
   isAttacking: 0
   attackDistance: 3
+  defaultAttackDistance: 0
 --- !u!1 &3885441181127678078
 GameObject:
   m_ObjectHideFlags: 0
@@ -2174,6 +2175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hp: 100
+  canAttack: 1
   death: 0
   punchCollider: {fileID: 8071876011120439146}
   deathEffect: {fileID: 3776099237529090847, guid: ecbbdea21fcd6bd4286811b2d6e175b8, type: 3}
@@ -2733,7 +2735,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3335390881663396800
 Transform:
   m_ObjectHideFlags: 0
@@ -2743,8 +2745,8 @@ Transform:
   m_GameObject: {fileID: 8071876011120439146}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 2.58, z: 2.785}
-  m_LocalScale: {x: 4.188869, y: 3.9875, z: 2.7517393}
+  m_LocalPosition: {x: -0, y: 2.58, z: 3.327}
+  m_LocalScale: {x: 4.188869, y: 3.9875, z: 3.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7685504401329284358}
