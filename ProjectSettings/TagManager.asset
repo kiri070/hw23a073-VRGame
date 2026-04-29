@@ -12,6 +12,7 @@ TagManager:
   - FxTemporaire
   - Skill
   - Enemy01_Punch
+  - DeathGround
   layers:
   - Default
   - TransparentFX

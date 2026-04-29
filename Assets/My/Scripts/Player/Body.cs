@@ -10,6 +10,7 @@ public class Body : MonoBehaviour
     [HideInInspector] public int hp = 100;
 
     CharacterController controller;
+    public Transform playerSpawnPos;
     //ノックバック関連
     Vector3 knockbackVelocity;
     float knockbackTime = 0.2f;
@@ -101,6 +102,14 @@ public class Body : MonoBehaviour
         {
             TakeDamage(10);
             
+        }
+        //落下判定
+        if(other.CompareTag("DeathGround"))
+        {
+            TakeDamage(10);
+            controller.enabled = false;
+            controller.transform.position = playerSpawnPos.position;
+            controller.enabled = true;
         }
     }
 
