@@ -11,6 +11,7 @@ public class Skill02 : MonoBehaviour
     GameManager gm;
     Sword_red sword_Red;
     Coroutine delayDestroyCoroutine;
+    public GameObject hitEffect;
 
     void Start()
     {
@@ -59,7 +60,8 @@ public class Skill02 : MonoBehaviour
                 StopCoroutine(delayDestroyCoroutine);
                 delayDestroyCoroutine = null;
             }
-
+            //ヒットエフェクト
+            Instantiate(hitEffect, transform.position, hitEffect.transform.rotation);
             // 親オブジェクトを破棄
             Destroy(transform.parent.gameObject);
         }
@@ -89,6 +91,8 @@ public class Skill02 : MonoBehaviour
     IEnumerator DelayDestory()
     {
         yield return new WaitForSeconds(destroyTime);
+        //ヒットエフェクト
+        Instantiate(hitEffect, transform.position, hitEffect.transform.rotation);
         Destroy(transform.parent.gameObject);
     }
 }

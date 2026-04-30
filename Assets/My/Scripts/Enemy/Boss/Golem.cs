@@ -13,15 +13,19 @@ public class Golem : MonoBehaviour
     SoundManager soundManager; // サウンドマネージャー
     Boss_SoundList bossSoundList; // ゴーレムのサウンドリスト
     BossHPBar bossHPBar; // HPバー
+    BossBarrierBar bossBarrierBar; // バリアバー
     [HideInInspector] public int hp;
     GameManager gm;
     public GameObject bgm_Obj;
 
     //ダウン状態関連
-    int hitStone_Count = 0;
+    [HideInInspector] public int hitStone_Count = 0;
+    [Tooltip("バリアの耐久値")] public int barrier_value = 5;
     [HideInInspector]public bool isDown = false;
     public GameObject skill2_DownEffect;
     public GameObject skill2_NotDownEffect;
+    public GameObject barrier_BrakeEffect;
+    public Transform barrier_BrakeEffect_Pos;
 
     // === ボスのムービー ===
    bool bossMovie = true;
@@ -67,6 +71,7 @@ public class Golem : MonoBehaviour
         soundManager = FindObjectOfType<SoundManager>();
         bossSoundList = FindObjectOfType<Boss_SoundList>();
         bossHPBar = FindObjectOfType<BossHPBar>();
+        bossBarrierBar = FindObjectOfType<BossBarrierBar>();
         gm = FindObjectOfType<GameManager>();
         sword_Red = FindObjectOfType<Sword_red>();
     }
@@ -309,12 +314,16 @@ public class Golem : MonoBehaviour
             if (isDown) return;
 
             hitStone_Count++; //岩に当たった回数
-            if(hitStone_Count >= 5)
+            bossBarrierBar.UpdateBarrierBar(1); // バリアバーを更新
+            // === バリアが破壊されたら ===
+            if(hitStone_Count >= barrier_value)
             {
                 //ダウン処理
                 isDown = true;                  //ダウン判定
                 anim.SetTrigger("SleepStart");  //ダウンアニメーション開始
                 StartCoroutine(BossDown());     //ダウン回復時間計測
+                Instantiate(barrier_BrakeEffect, barrier_BrakeEffect_Pos.transform.position, barrier_BrakeEffect.transform.rotation);
+                gm.StartHitStop(0.7f, 0.3f);
             }
 
             //ダメージを受ける
@@ -481,6 +490,7 @@ public class Golem : MonoBehaviour
     {
         isDown = false; //ダウン判定をオフ
         hitStone_Count = 0; //ヒットカウントをリセット
+        bossBarrierBar.ResetBarrierBar(); // バリアバーをリセット
         attackCooldown = 0; //クールダウンをリセット
     }
 

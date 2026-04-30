@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class BossHPBar : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class BossHPBar : MonoBehaviour
     public Text hpText;
 
     Golem golem;
+    Tween hpbarTween;
     void Start()
     {
         gm = FindObjectOfType<GameManager>(); // ゲームマネージャーを取得
@@ -42,7 +44,15 @@ public class BossHPBar : MonoBehaviour
     /// <param name="damage">与えるダメージ</param>
     public void UpdateHPBar(float damage)
     {
-        hpbar.value -= damage;
+        hpbarTween?.Kill();
+        // hpbar.value -= damage;
+        //アニメーション付きで減少
+        hpbarTween = hpbar.DOValue(hpbar.value - damage, 1.0f).SetEase(Ease.OutCubic);
         hpText.text = ((float)golem.hp / maxHP * 100).ToString("F0") + "%";
+    }
+
+    void OnDestroy()
+    {
+        hpbarTween?.Kill();
     }
 }

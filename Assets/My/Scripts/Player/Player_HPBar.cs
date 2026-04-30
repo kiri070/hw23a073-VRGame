@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class Player_HPBar : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class Player_HPBar : MonoBehaviour
     [HideInInspector]public float maxHP;
     Body body; //プレイヤーのbodyスクリプト
     public Text hpText;
+    Tween hpbarTween;
 
 
     void Start()
@@ -34,7 +36,13 @@ public class Player_HPBar : MonoBehaviour
     /// <param name="damage">与えるダメージ</param>
     public void UpdateHPBar(float damage)
     {
-        hpbar.value -= damage; //HPバー
+        hpbarTween?.Kill();
+        hpbarTween = hpbar.DOValue(hpbar.value - damage, 1.0f).SetEase(Ease.OutCubic);
         hpText.text = "HP:" + ((body.hp / maxHP) * 100).ToString("F0") + "%"; //残りHPパーセント(小数点以下カット)
+    }
+
+    void Oestroy()
+    {
+        hpbarTween?.Kill();
     }
 }
