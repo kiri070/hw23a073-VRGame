@@ -44,11 +44,12 @@ public class BossHPBar : MonoBehaviour
     /// <param name="damage">与えるダメージ</param>
     public void UpdateHPBar(float damage)
     {
+        float targetHP = Mathf.Clamp(golem.hp, 0, maxHP);
         hpbarTween?.Kill();
         // hpbar.value -= damage;
         //アニメーション付きで減少
-        hpbarTween = hpbar.DOValue(hpbar.value - damage, 1.0f).SetEase(Ease.OutCubic);
-        hpText.text = ((float)golem.hp / maxHP * 100).ToString("F0") + "%";
+        hpbarTween = hpbar.DOValue(targetHP, 1.0f).SetEase(Ease.OutCubic);
+        hpText.text = (targetHP / maxHP * 100).ToString("F0") + "%";
     }
 
     void OnDestroy()

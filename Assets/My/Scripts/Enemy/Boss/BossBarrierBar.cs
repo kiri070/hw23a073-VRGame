@@ -12,6 +12,7 @@ public class BossBarrierBar : MonoBehaviour
 
     Golem golem;
     Tween barrierTween;
+    int currentBarrierValue;
 
     void Start()
     {
@@ -20,6 +21,7 @@ public class BossBarrierBar : MonoBehaviour
         // バリアバーの最大値を設定
         barrierBar.maxValue = golem.barrier_value;
         barrierBar.value = golem.barrier_value;
+        currentBarrierValue = golem.barrier_value;
         UpdateBarrierBar(0); //初期設定用
     }
 
@@ -29,10 +31,10 @@ public class BossBarrierBar : MonoBehaviour
     /// <param name="damage">与えるダメージ</param>
     public void UpdateBarrierBar(int damage)
     {
+        currentBarrierValue = Mathf.Max(currentBarrierValue - damage, 0);
         barrierTween?.Kill();
         //アニメーション付きで減少
-        barrierTween = barrierBar.DOValue(barrierBar.value - damage, 1.0f).SetEase(Ease.OutCubic);
-        if (barrierBar.value < 0) barrierBar.value = 0;
+        barrierTween = barrierBar.DOValue(currentBarrierValue, 1.0f).SetEase(Ease.OutCubic);
     }
 
     /// <summary>
@@ -40,9 +42,10 @@ public class BossBarrierBar : MonoBehaviour
     /// </summary>
     public void ResetBarrierBar()
     {
+        currentBarrierValue = golem.barrier_value;
         barrierTween?.Kill();
         //アニメーション付きで減少
-        barrierTween = barrierBar.DOValue(barrierBar.maxValue, recoverDuration)
+        barrierTween = barrierBar.DOValue(currentBarrierValue, recoverDuration)
             .SetEase(recoverEase);
     }
 

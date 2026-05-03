@@ -22,6 +22,8 @@ public class Golem : MonoBehaviour
     [HideInInspector] public int hitStone_Count = 0;
     [Tooltip("バリアの耐久値")] public int barrier_value = 5;
     [HideInInspector]public bool isDown = false;
+    bool isDead = false;
+    Coroutine bossDownCoroutine;
     public GameObject skill2_DownEffect;
     public GameObject skill2_NotDownEffect;
     public GameObject barrier_BrakeEffect;
@@ -89,7 +91,7 @@ public class Golem : MonoBehaviour
         if (!introEnd) return;
 
         if(gm.gameOver) return;
-        if(hp <= 0) return;
+        if(isDead || hp <= 0) return;
 
         if(attackCooldown <= 0 && !isDown)
         {
@@ -305,7 +307,7 @@ public class Golem : MonoBehaviour
     //衝突判定
     void OnTriggerEnter(Collider other)
     {
-        if(hp <= 0) return;
+        if(isDead || hp <= 0) return;
 
         //岩
         if(other.gameObject.CompareTag("Stone"))
@@ -318,10 +320,11 @@ public class Golem : MonoBehaviour
             // === バリアが破壊されたら ===
             if(hitStone_Count >= barrier_value)
             {
+                soundManager.OnPlaySE(audioSource, bossSoundList.breakBarrierSound, 5f);
                 //ダウン処理
                 isDown = true;                  //ダウン判定
                 anim.SetTrigger("SleepStart");  //ダウンアニメーション開始
-                StartCoroutine(BossDown());     //ダウン回復時間計測
+                bossDownCoroutine = StartCoroutine(BossDown());     //ダウン回復時間計測
                 Instantiate(barrier_BrakeEffect, barrier_BrakeEffect_Pos.transform.position, barrier_BrakeEffect.transform.rotation);
                 gm.StartHitStop(0.7f, 0.3f);
             }
@@ -483,11 +486,13 @@ public class Golem : MonoBehaviour
     IEnumerator BossDown()
     {
         yield return new WaitForSeconds(10f);
+        if(isDead) yield break;
         anim.SetTrigger("SleepEnd");
     }
     //スリープアニメーションが終了したら呼ばれる関数
     public void SleepEnded()
     {
+        if(isDead) return;
         isDown = false; //ダウン判定をオフ
         hitStone_Count = 0; //ヒットカウントをリセット
         bossBarrierBar.ResetBarrierBar(); // バリアバーをリセット
@@ -497,6 +502,8 @@ public class Golem : MonoBehaviour
     //ダメージを受ける関数
     public void TakeDamage(int damage)
     {
+        if(isDead) return;
+
         hp -= damage;
         if(hp < 0) hp = 0;
         bossHPBar.UpdateHPBar(damage);
@@ -504,6 +511,16 @@ public class Golem : MonoBehaviour
 
         if(hp <= 0)
         {
+            isDead = true;
+            isDown = false;
+            if(bossDownCoroutine != null)
+            {
+                StopCoroutine(bossDownCoroutine);
+                bossDownCoroutine = null;
+            }
+            anim.ResetTrigger("SleepStart");
+            anim.ResetTrigger("SleepEnd");
+            anim.ResetTrigger("Damage");
             anim.SetTrigger("Die");
         }
     }

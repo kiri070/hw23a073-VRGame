@@ -13,4 +13,5 @@ public class Boss_SoundList : MonoBehaviour
     public AudioClip hadouAttackSound;
     public AudioClip bossMovieSound;
     public AudioClip bossBGM01;
+    public AudioClip breakBarrierSound;
 }
