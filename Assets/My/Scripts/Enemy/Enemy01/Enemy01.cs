@@ -91,7 +91,7 @@ public class Enemy01 : MonoBehaviour
     void Die()
     {
         //プレイヤーのEXゲージに加算
-        player_EXBar.UpdateEXBar(100);
+        player_EXBar.UpdateEXBar(10);
 
         // 物理演算をオフにして落下を防ぐ
         Rigidbody rb = GetComponent<Rigidbody>();
