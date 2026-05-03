@@ -122,6 +122,8 @@ public class Golem : MonoBehaviour
     //ダメージを受ける
     public void Damage()
     {
+        if(isDown) return;
+
         anim.SetTrigger("Damage");
         attackCooldown = 5f;
     }
