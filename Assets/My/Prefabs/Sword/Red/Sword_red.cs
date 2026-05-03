@@ -19,6 +19,8 @@ public class Sword_red : MonoBehaviour
     //エンチャントレベル3
 
 
+    Player_EXBar player_EXBar;
+    EXSkill eXSkill;
     Golem golem;
     [HideInInspector] public XRBaseController rightController;
     [HideInInspector] public XRBaseController leftController;
@@ -72,6 +74,9 @@ public class Sword_red : MonoBehaviour
         swordSoundList = FindObjectOfType<SwordSoundList>();
         audioSource = GetComponent<AudioSource>();
         golem = FindObjectOfType<Golem>();
+        player_EXBar = FindObjectOfType<Player_EXBar>();
+        eXSkill = FindObjectOfType<EXSkill>();
+
         leftHand = GameObject.Find("Left Controller").transform;
         effect_level1 = transform.Find("Effect_Level1").gameObject;
         effect_level2 = transform.Find("Effect_Level2").gameObject;
@@ -294,7 +299,18 @@ public class Sword_red : MonoBehaviour
         }
         else if(enchantLevel == 3)
         {
-            Debug.Log("エンチャントレベル3のスキル発動");
+            if(player_EXBar.ex >= 100)
+            {
+                Debug.Log("必殺技を発動");
+                player_EXBar.UseEX(100);
+                gm.StartHitStop(0.7f, 0.7f);
+                StartCoroutine(eXSkill.spawnSword());
+            }
+            else
+            {
+                Debug.Log("エンチャントレベル3のスキル発動");
+            }
+            
         }
         
         isActivated = false;
@@ -323,6 +339,7 @@ public class Sword_red : MonoBehaviour
         //石の当たり判定
         if(other.gameObject.CompareTag("Stone") && !isAttack && isSwinging && isActivated)
         {
+            player_EXBar.UpdateEXBar(10); // EXゲージ
             gm.StartHitStop(0.5f, 0.2f); // ヒットストップ
             SendHaptic(1f, 0.5f, rightController);
             sm.OnPlaySE(audioSource, swordSoundList.flictionSound, 2f);

@@ -12,6 +12,7 @@ public class Stone : MonoBehaviour
 
     Rigidbody rb;
     GameObject player;
+    Player_EXBar player_EXBar;
 
     //===== エフェクト =====
     public GameObject reflection_Effect; //跳ね返ったときのエフェクト
@@ -34,6 +35,7 @@ public class Stone : MonoBehaviour
     Sword_red sword_Red;
     void Start()
     {
+        player_EXBar = FindObjectOfType<Player_EXBar>();
         soundManager = FindObjectOfType<SoundManager>();
         stoneSoundList = FindObjectOfType<Stone_SoundList>();
         audioSource = GetComponent<AudioSource>();
@@ -133,6 +135,7 @@ public class Stone : MonoBehaviour
             isHitSword = true;
             reflectioned = true; //反射されたフラグを立てる
             gm.StartHitStop(0.5f, 0.2f); // ヒットストップ
+            player_EXBar.UpdateEXBar(10); // EXゲージ
         }
     }
 

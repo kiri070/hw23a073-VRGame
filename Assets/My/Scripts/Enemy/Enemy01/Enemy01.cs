@@ -24,6 +24,7 @@ public class Enemy01 : MonoBehaviour
 
     Golem golem;
     Enemy01_HPBar enemy01_HPBar;
+    Player_EXBar player_EXBar;
     
 
     void Start()
@@ -37,6 +38,7 @@ public class Enemy01 : MonoBehaviour
 
         golem = FindObjectOfType<Golem>();
         enemy01_HPBar = GetComponentInChildren<Enemy01_HPBar>();
+        player_EXBar = FindObjectOfType<Player_EXBar>();
     }
 
     // === 攻撃開始・終了処理 === //
@@ -88,6 +90,9 @@ public class Enemy01 : MonoBehaviour
     //死んだとき
     void Die()
     {
+        //プレイヤーのEXゲージに加算
+        player_EXBar.UpdateEXBar(100);
+
         // 物理演算をオフにして落下を防ぐ
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)

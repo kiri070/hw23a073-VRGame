@@ -6,10 +6,11 @@ using UnityEngine;
 public class Body : MonoBehaviour
 {
     Player_HPBar player_HPBar;
+    EXSkill exSkill;
     // === プレイヤー情報 === //
     [HideInInspector] public int hp = 100;
     public float invincibleTime = 0.5f;
-    bool invincible = false;
+    [HideInInspector]public bool invincible = false;
 
     CharacterController controller;
     public Transform playerSpawnPos;
@@ -41,6 +42,7 @@ public class Body : MonoBehaviour
 
         gm = FindObjectOfType<GameManager>();
         player_HPBar = FindObjectOfType<Player_HPBar>();
+        exSkill = FindObjectOfType<EXSkill>();
     }
 
     void Update()
@@ -145,8 +147,8 @@ public class Body : MonoBehaviour
     //プレイヤーが攻撃を受ける関数
     public void TakeDamage(int damage)
     {
-        //無敵状態なら実行しない
-        if(invincible) return;
+        // 無敵状態 || EXスキル中 は実行しない
+        if(invincible || exSkill.isExSkill) return;
 
         hp -= damage;
         if(hp < 0) hp = 0;

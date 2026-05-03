@@ -15,11 +15,14 @@ public class CharacterCnt : MonoBehaviour
     float turnCooldown = 0f;
     public float turnAngle = 30f; // 回転角度
     public float turnDelay = 0.3f; // 連続防止
+
+    EXSkill exSkill;
     
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        exSkill = FindObjectOfType<EXSkill>();
     }
 
     void Update()
@@ -29,6 +32,9 @@ public class CharacterCnt : MonoBehaviour
         InputDevice rightDevice = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
 
         Vector3 move = Vector3.zero;
+
+        //必殺技中は移動しない
+        if(exSkill.isExSkill) return;
 
         // 移動
         Vector2 input;
