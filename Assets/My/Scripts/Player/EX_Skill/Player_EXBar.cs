@@ -8,15 +8,25 @@ public class Player_EXBar : MonoBehaviour
 {
     public Slider exBar;
     public GameObject maxImg;
+    public float autoChargeEXnum = 5f;
     [HideInInspector] public int maxEX = 100;
     [HideInInspector] public float ex = 0;
+
+    //sound
+    SoundManager sm;
+    AudioSource audioSource;
+    public AudioClip exSkillMax_SE;
 
     Tween exBarTween;
     void Start()
     {
+        sm = FindObjectOfType<SoundManager>();
+        audioSource = GetComponent<AudioSource>();
+
         exBar.maxValue = maxEX;
         exBar.value = ex;
         UpdateEXBar(0); // 初期化
+        StartCoroutine(AutoChargeSkill()); //一定時間ごとにEXゲージが溜まる処理
 
         // UpdateEXBar(100); // デバック用
 
@@ -34,9 +44,16 @@ public class Player_EXBar : MonoBehaviour
         exBarTween?.Kill();
         exBarTween = exBar.DOValue(targetEX, 1.0f).SetEase(Ease.OutCubic);
 
-        if(maxImg != null)
+        //ゲージが満タンなら
+        if(maxImg != null && targetEX >= maxEX)
         {
-            maxImg.SetActive(targetEX >= maxEX);
+            maxImg.SetActive(true); //MaxImgを表示
+            sm.OnPlaySE(audioSource, exSkillMax_SE, 5f); //効果音
+        }
+        //ゲージが満タン未満なら
+        else
+        {
+            maxImg.SetActive(false);
         }
     }
 
@@ -51,6 +68,16 @@ public class Player_EXBar : MonoBehaviour
 
         UpdateEXBar(-value);
         return true;
+    }
+
+    //一定時間ごとにEXゲージが溜まる処理
+    IEnumerator AutoChargeSkill()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(20f);
+            UpdateEXBar(autoChargeEXnum);
+        }
     }
 
     void OnDestroy()
