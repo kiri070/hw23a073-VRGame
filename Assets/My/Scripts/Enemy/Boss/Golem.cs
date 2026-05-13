@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-using Unity.VisualScripting;
+using UnityEngine.UI;
 
 /// <summary>
 /// ゴーレムの挙動を制御するクラス
@@ -28,6 +28,14 @@ public class Golem : MonoBehaviour
     public GameObject skill2_NotDownEffect;
     public GameObject barrier_BrakeEffect;
     public Transform barrier_BrakeEffect_Pos;
+    
+    public GameObject downTextGroup;
+    public Text downText;
+    public string downTextMessage = "DOWN!";
+    public Vector3 downTextOffset = new Vector3(0f, 2.5f, 2f);
+    public float downTextShowTime = 1.2f;
+
+    DG.Tweening.Tween downTextTween;
 
     // === ボスのムービー ===
    bool bossMovie = true;
@@ -487,9 +495,59 @@ public class Golem : MonoBehaviour
     // === ダウン処理 ===
     IEnumerator BossDown()
     {
+        PlayDownText();
+        
         yield return new WaitForSeconds(10f);
         if(isDead) yield break;
         anim.SetTrigger("SleepEnd");
+    }
+
+    //ダウンしたときの表示するテキスト
+    void PlayDownText()
+    {
+        if (downTextGroup == null || downText == null) return;
+
+        downTextTween?.Kill();
+
+        //オフセットを設定
+        Transform downTextTransform = downTextGroup.transform;
+        downTextTransform.position = transform.position
+            + transform.right * downTextOffset.x
+            + transform.up * downTextOffset.y
+            + transform.forward * downTextOffset.z;
+
+        Camera mainCamera = Camera.main;
+        if (mainCamera != null)
+        {
+            downTextTransform.LookAt(
+                downTextTransform.position + mainCamera.transform.rotation * Vector3.forward,
+                mainCamera.transform.rotation * Vector3.up
+            );
+        }
+
+        downTextGroup.SetActive(true);
+        downText.text = downTextMessage;
+        downText.color = new Color(downText.color.r, downText.color.g, downText.color.b, 0f);
+        Vector3 targetScale = downTextTransform.localScale == Vector3.zero ? Vector3.one : downTextTransform.localScale;
+        downTextTransform.localScale = Vector3.zero;
+
+        //アニメーション
+        DG.Tweening.Sequence sequence = DOTween.Sequence();
+        //膨らむ
+        sequence.SetUpdate(true);
+        sequence.Append(downTextTransform.DOScale(targetScale * 1.25f, 0.18f).SetEase(Ease.OutBack));
+        sequence.Join(downText.DOFade(1f, 0.1f));
+
+        sequence.Append(downTextTransform.DOScale(targetScale, 0.12f).SetEase(Ease.OutQuad));
+        sequence.AppendInterval(downTextShowTime); //秒数を待つ
+
+        //上に上昇して消える
+        sequence.Append(downTextTransform.DOMoveY(downTextTransform.position.y + 0.6f, 0.35f).SetEase(Ease.OutQuad));
+        sequence.Join(downText.DOFade(0f, 0.35f));
+
+        sequence.OnComplete(() => downTextGroup.SetActive(false));
+
+        downTextTween = sequence;
     }
     //スリープアニメーションが終了したら呼ばれる関数
     public void SleepEnded()

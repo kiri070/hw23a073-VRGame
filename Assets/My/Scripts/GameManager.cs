@@ -62,8 +62,7 @@ public class GameManager : MonoBehaviour
         if(getDifficulty == "Hard") difficulty = Difficulty.Hard; 
 
         //ボスの召喚
-        StartCoroutine(BossSpawn());
-        
+        if(SceneManager.GetActiveScene().name != "TutorialScene") StartCoroutine(BossSpawn());
     }
 
     void Update()

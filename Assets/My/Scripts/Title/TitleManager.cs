@@ -23,6 +23,8 @@ public class TitleManager : MonoBehaviour
     public GameObject selectHardObj;
 
     public GameObject hardEffect;
+    
+    bool isTutorial = false;
 
     //音声
     SoundManager sm;
@@ -87,6 +89,22 @@ public class TitleManager : MonoBehaviour
     {
         if (isLoading) return;
 
+        isTutorial = false;
+        StartLoadScene();
+    }
+
+    //チュートリアルボタン
+    public void OnPlayGameSceneButton(Object clickedButton)
+    {
+        if (isLoading) return;
+
+        isTutorial = clickedButton != null && clickedButton.name == "Tutorial";
+
+        StartLoadScene();
+    }
+
+    void StartLoadScene()
+    {
         isLoading = true;
         StartCoroutine(LoadScene());
     }
@@ -107,8 +125,10 @@ public class TitleManager : MonoBehaviour
 
         if (loadingText != null)
             loadingText.text = "0%";
-
-        AsyncOperation load = SceneManager.LoadSceneAsync("GameScene");
+        
+        //チューリアル または ゲームシーンを読み込む
+        string sceneName = isTutorial ? "TutorialScene" : "GameScene";
+        AsyncOperation load = SceneManager.LoadSceneAsync(sceneName);
         load.allowSceneActivation = false;
 
         while (!load.isDone)
