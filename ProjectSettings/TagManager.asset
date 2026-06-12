@@ -15,6 +15,7 @@ TagManager:
   - DeathGround
   - Lightning
   - Skill2
+  - WeakPoint
   layers:
   - Default
   - TransparentFX

@@ -33,5 +33,20 @@ public class EffectCollision : MonoBehaviour
                 gm.StartHitStop(0.7f, 0.7f);                    //ヒットストップ
             }
         }
+
+        if(other.CompareTag("Boss"))
+        {
+            //攻撃処理
+            Golem golem = other.GetComponent<Golem>();
+
+            if (sword_Red != null)
+            {
+                sword_Red.SendHaptic(1f, 0.5f, sword_Red.rightController); //振動
+            }
+            if (gm != null)
+            {
+                gm.StartHitStop(0.7f, 0.7f);                    //ヒットストップ
+            }
+        }
     }
 }

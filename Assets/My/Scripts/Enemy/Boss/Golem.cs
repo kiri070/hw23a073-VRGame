@@ -19,6 +19,7 @@ public class Golem : MonoBehaviour
     public GameObject bgm_Obj;
 
     //ダウン状態関連
+    public int bossDownTime = 10; //ダウン時間
     [HideInInspector] public int hitStone_Count = 0;
     [Tooltip("バリアの耐久値")] public int barrier_value = 5;
     [HideInInspector]public bool isDown = false;
@@ -28,7 +29,15 @@ public class Golem : MonoBehaviour
     public GameObject skill2_NotDownEffect;
     public GameObject barrier_BrakeEffect;
     public Transform barrier_BrakeEffect_Pos;
-    
+
+    // === 弱点の点滅 ===
+    public GameObject[] weakPointObjs = new GameObject[2]; //弱点のオブジェクトを格納する配列
+    public float weakPointBlinkSpeed = 4f; // ダウン中の点滅速度
+    public float weakPointMinAlpha = 0.2f; // 点滅時の最小アルファ
+
+    private List<Material> weakPointMaterials = new List<Material>();
+    private List<Color> weakPointOriginalColors = new List<Color>();
+
     public GameObject downTextGroup;
     public Text downText;
     public string downTextMessage = "DOWN!";
@@ -84,6 +93,8 @@ public class Golem : MonoBehaviour
         bossBarrierBar = FindObjectOfType<BossBarrierBar>();
         gm = FindObjectOfType<GameManager>();
         sword_Red = FindObjectOfType<Sword_red>();
+
+        InitializeWeakPointMaterials();
     }
 
     void Update()
@@ -101,13 +112,15 @@ public class Golem : MonoBehaviour
         if(gm.gameOver) return;
         if(isDead || hp <= 0) return;
 
+        UpdateWeakPointBlink();
+
         if(attackCooldown <= 0 && !isDown)
         {
             int rnd;
             
             do
             {
-                rnd = Random.Range(1, 4);
+                rnd = Random.Range(2, 4); //1, 4
             }
             while (rnd == lastAction); // 前回と同じなら引き直し
 
@@ -127,6 +140,48 @@ public class Golem : MonoBehaviour
         anim.SetTrigger("IdleAction");
         attackCooldown = 10f;
     }
+
+    //弱点点滅の初期化
+    void InitializeWeakPointMaterials()
+    {
+        weakPointMaterials.Clear();
+        weakPointOriginalColors.Clear();
+
+        foreach (var obj in weakPointObjs)
+        {
+            if (obj == null) continue;
+            var renderer = obj.GetComponent<Renderer>();
+            if (renderer == null) continue;
+
+            var mat = renderer.material;
+            if (mat == null) continue;
+
+            weakPointMaterials.Add(mat);
+            weakPointOriginalColors.Add(mat.HasProperty("_Color") ? mat.color : Color.white);
+        }
+    }
+    //弱点の点滅を更新
+    void UpdateWeakPointBlink()
+    {
+        if (weakPointMaterials.Count == 0) return;
+
+        float alpha = 1f;
+        if (isDown)
+        {
+            alpha = weakPointMinAlpha + (Mathf.Sin(Time.time * weakPointBlinkSpeed) * 0.5f + 0.5f) * (1f - weakPointMinAlpha);
+        }
+
+        for (int i = 0; i < weakPointMaterials.Count; i++)
+        {
+            var mat = weakPointMaterials[i];
+            if (!mat.HasProperty("_Color")) continue;
+
+            Color c = weakPointOriginalColors[i];
+            c.a = alpha;
+            mat.color = c;
+        }
+    }
+
     //ダメージを受ける
     public void Damage()
     {
@@ -311,7 +366,7 @@ public class Golem : MonoBehaviour
             Instantiate(throwObj, throwObj_Pos[2].position, Quaternion.identity);
             Instantiate(throwObj, throwObj_Pos[3].position, Quaternion.identity);
         }
-        attackCooldown = 10f;
+        attackCooldown = 6f;
     }
 
     //衝突判定
@@ -496,8 +551,17 @@ public class Golem : MonoBehaviour
     IEnumerator BossDown()
     {
         PlayDownText();
-        
-        yield return new WaitForSeconds(10f);
+        // ダウン開始時の処理
+        foreach (GameObject obj in weakPointObjs)
+        {
+            obj.SetActive(true); //弱点を表示
+        }
+        yield return new WaitForSeconds(bossDownTime);
+        // ダウン終了時の処理
+        foreach (GameObject obj in weakPointObjs)
+        {
+            obj.SetActive(false); //弱点を非表示
+        }
         if(isDead) yield break;
         anim.SetTrigger("SleepEnd");
     }
@@ -578,6 +642,12 @@ public class Golem : MonoBehaviour
                 StopCoroutine(bossDownCoroutine);
                 bossDownCoroutine = null;
             }
+
+            foreach (GameObject obj in weakPointObjs)
+            {
+                obj.SetActive(false); //弱点を非表示
+            }
+
             anim.ResetTrigger("SleepStart");
             anim.ResetTrigger("SleepEnd");
             anim.ResetTrigger("Damage");

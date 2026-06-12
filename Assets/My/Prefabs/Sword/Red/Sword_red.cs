@@ -366,11 +366,31 @@ public class Sword_red : MonoBehaviour
             gm.StartHitStop(0.7f, 0.7f); //ヒットストップ
             sm.OnPlaySE(audioSource, swordSoundList.hitSwordSound, 3f);
         }
+
+        //ボスの腕の当たり判定(ダウン時のみ)
+        if(other.gameObject.CompareTag("WeakPoint") && !isAttack && isSwinging && golem.isDown) //ボスがダウンしているときのみ攻撃可能
+        {
+            isAttack = true;
+
+            Vector3 hitPos = other.ClosestPoint(transform.position);
+
+            Instantiate(hitEffect, hitPos, Quaternion.identity);
+
+            //攻撃処理
+            if(enchantLevel == 0) golem.TakeDamage(5);
+            if(enchantLevel == 1) golem.TakeDamage(10);
+            if(enchantLevel == 2) golem.TakeDamage(15);
+            if(enchantLevel == 3) golem.TakeDamage(20);
+
+            SendHaptic(1f, 0.5f, rightController);  //振動
+            gm.StartHitStop(0.7f, 0.7f); //ヒットストップ
+            sm.OnPlaySE(audioSource, swordSoundList.hitSwordSound, 3f);
+        }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if(other.CompareTag("Enemy"))
+        if(other.CompareTag("Enemy") || other.CompareTag("WeakPoint"))
         {
             isAttack = false;
         }

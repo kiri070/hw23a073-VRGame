@@ -139,9 +139,10 @@ MonoBehaviour:
   reflection_Effect: {fileID: 2504214343621411470, guid: da8f488753b415f4cbea435190063f8a, type: 3}
   impactGround_Effect: {fileID: 4021103657954561961, guid: 676d814876e88194c82d55d0fb68539c, type: 3}
   hitBoss_Effect: {fileID: 2708598583397607911, guid: 57af4a859c1e81a44b8203d1de95e130, type: 3}
-  speed: 7
-  arcHeight: 2
-  offsetRange: 8
+  speed: 17
+  arcHeight: 6
+  offsetRange: 4
+  sword_enchantLevel: 0
 --- !u!54 &-3819102154627283965
 Rigidbody:
   m_ObjectHideFlags: 0
