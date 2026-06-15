@@ -73,7 +73,6 @@ public class Sword_red : MonoBehaviour
         sm = FindObjectOfType<SoundManager>();
         swordSoundList = FindObjectOfType<SwordSoundList>();
         audioSource = GetComponent<AudioSource>();
-        golem = FindObjectOfType<Golem>();
         player_EXBar = FindObjectOfType<Player_EXBar>();
         eXSkill = FindObjectOfType<EXSkill>();
 
@@ -94,6 +93,10 @@ public class Sword_red : MonoBehaviour
 
     void Update()
     {
+        if(golem == null)
+        {
+            golem = FindObjectOfType<Golem>();
+        }
 
         // headSpeed = (head.position - prevHeadPos).magnitude / Time.deltaTime; //プレイヤーの移動量を計算
         Vector3 move = head.position - prevHeadPos;
@@ -370,6 +373,7 @@ public class Sword_red : MonoBehaviour
         //ボスの腕の当たり判定(ダウン時のみ)
         if(other.gameObject.CompareTag("WeakPoint") && !isAttack && isSwinging && golem.isDown) //ボスがダウンしているときのみ攻撃可能
         {
+
             isAttack = true;
 
             Vector3 hitPos = other.ClosestPoint(transform.position);
@@ -377,10 +381,10 @@ public class Sword_red : MonoBehaviour
             Instantiate(hitEffect, hitPos, Quaternion.identity);
 
             //攻撃処理
-            if(enchantLevel == 0) golem.TakeDamage(5);
-            if(enchantLevel == 1) golem.TakeDamage(10);
-            if(enchantLevel == 2) golem.TakeDamage(15);
-            if(enchantLevel == 3) golem.TakeDamage(20);
+            if(enchantLevel == 0) golem.TakeDamage(3);
+            if(enchantLevel == 1) golem.TakeDamage(6);
+            if(enchantLevel == 2) golem.TakeDamage(9);
+            if(enchantLevel == 3) golem.TakeDamage(12);
 
             SendHaptic(1f, 0.5f, rightController);  //振動
             gm.StartHitStop(0.7f, 0.7f); //ヒットストップ

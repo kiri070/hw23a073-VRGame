@@ -18,6 +18,8 @@ public class Golem : MonoBehaviour
     GameManager gm;
     public GameObject bgm_Obj;
 
+    public GameObject stageObj; //ステージ
+
     //ダウン状態関連
     public int bossDownTime = 10; //ダウン時間
     [HideInInspector] public int hitStone_Count = 0;
@@ -32,11 +34,6 @@ public class Golem : MonoBehaviour
 
     // === 弱点の点滅 ===
     public GameObject[] weakPointObjs = new GameObject[2]; //弱点のオブジェクトを格納する配列
-    public float weakPointBlinkSpeed = 4f; // ダウン中の点滅速度
-    public float weakPointMinAlpha = 0.2f; // 点滅時の最小アルファ
-
-    private List<Material> weakPointMaterials = new List<Material>();
-    private List<Color> weakPointOriginalColors = new List<Color>();
 
     public GameObject downTextGroup;
     public Text downText;
@@ -94,7 +91,7 @@ public class Golem : MonoBehaviour
         gm = FindObjectOfType<GameManager>();
         sword_Red = FindObjectOfType<Sword_red>();
 
-        InitializeWeakPointMaterials();
+        // InitializeWeakPointMaterials();
     }
 
     void Update()
@@ -112,7 +109,7 @@ public class Golem : MonoBehaviour
         if(gm.gameOver) return;
         if(isDead || hp <= 0) return;
 
-        UpdateWeakPointBlink();
+        // UpdateWeakPointBlink();
 
         if(attackCooldown <= 0 && !isDown)
         {
@@ -139,47 +136,6 @@ public class Golem : MonoBehaviour
     {
         anim.SetTrigger("IdleAction");
         attackCooldown = 10f;
-    }
-
-    //弱点点滅の初期化
-    void InitializeWeakPointMaterials()
-    {
-        weakPointMaterials.Clear();
-        weakPointOriginalColors.Clear();
-
-        foreach (var obj in weakPointObjs)
-        {
-            if (obj == null) continue;
-            var renderer = obj.GetComponent<Renderer>();
-            if (renderer == null) continue;
-
-            var mat = renderer.material;
-            if (mat == null) continue;
-
-            weakPointMaterials.Add(mat);
-            weakPointOriginalColors.Add(mat.HasProperty("_Color") ? mat.color : Color.white);
-        }
-    }
-    //弱点の点滅を更新
-    void UpdateWeakPointBlink()
-    {
-        if (weakPointMaterials.Count == 0) return;
-
-        float alpha = 1f;
-        if (isDown)
-        {
-            alpha = weakPointMinAlpha + (Mathf.Sin(Time.time * weakPointBlinkSpeed) * 0.5f + 0.5f) * (1f - weakPointMinAlpha);
-        }
-
-        for (int i = 0; i < weakPointMaterials.Count; i++)
-        {
-            var mat = weakPointMaterials[i];
-            if (!mat.HasProperty("_Color")) continue;
-
-            Color c = weakPointOriginalColors[i];
-            c.a = alpha;
-            mat.color = c;
-        }
     }
 
     //ダメージを受ける
@@ -322,12 +278,14 @@ public class Golem : MonoBehaviour
             //玉の攻撃
             case 0:
                 Instantiate(hadouEffect, hadouPos.transform.position, hadouEffect.transform.rotation); //エフェクト
-                gm.Shake(0.7f, 0.6f, 30, 90);
+                gm.Shake(0.7f, 0.4f, 30, 60); //カメラの揺れ
+                stageObj.transform.DOShakePosition(1f, 0.15f, 20, 20f); //ステージの揺れ
                 soundManager.OnPlaySE(audioSource, bossSoundList.hadouAttackSound, 3f); //音
             break;
             //波上の攻撃
             case 1:
-                gm.Shake(0.7f, 0.6f, 30, 90);
+                gm.Shake(0.7f, 0.4f, 30, 60); //カメラの揺れ
+                stageObj.transform.DOShakePosition(1f, 0.2f, 30, 20f); //ステージの揺れ
                 for(int i = 0; i < hadou02_Pos.Count; i++)
                 {
                     
@@ -502,6 +460,7 @@ public class Golem : MonoBehaviour
         sword_Red.SendHaptic(1, 1, sword_Red.leftController);
         sword_Red.SendHaptic(1, 1, sword_Red.rightController);
         gm.Shake(2f, 1.5f, 90, 90);
+        stageObj.transform.DOShakePosition(1f, 0.2f, 20, 20f); //ステージの揺れ
     }
 
     //ボスムービー
@@ -551,17 +510,7 @@ public class Golem : MonoBehaviour
     IEnumerator BossDown()
     {
         PlayDownText();
-        // ダウン開始時の処理
-        foreach (GameObject obj in weakPointObjs)
-        {
-            obj.SetActive(true); //弱点を表示
-        }
         yield return new WaitForSeconds(bossDownTime);
-        // ダウン終了時の処理
-        foreach (GameObject obj in weakPointObjs)
-        {
-            obj.SetActive(false); //弱点を非表示
-        }
         if(isDead) yield break;
         anim.SetTrigger("SleepEnd");
     }

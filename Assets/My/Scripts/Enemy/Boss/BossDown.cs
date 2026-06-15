@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 /// <summary>
 /// ボスがダウンしたときの処理
@@ -18,9 +19,18 @@ public class BossDown : MonoBehaviour
     bool downStart_hasProcessed = false; //処理を一回だけ行うためのフラグ
     bool downEnd_hasProcessed = false; //処理を一回だけ行うためのフラグ
 
+    //音
+    bool hasPlayedTimeLimitSE = false;
+    SoundManager sm;
+    AudioSource audioSource;
+    public AudioClip timelimit_SE;
+    
+
     void Start()
     {
         bridge_position = bridgeObj.transform.position; //橋の初期位置を保存
+        sm = FindObjectOfType<SoundManager>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -37,12 +47,21 @@ public class BossDown : MonoBehaviour
             moveBridgeCoroutine = StartCoroutine(MoveBridge()); // 橋を動かすコルーチンを開始
             downStart_hasProcessed = true; // 処理済みフラグを立てる
             counter = 0f;
+            hasPlayedTimeLimitSE = false; //音声フラグをリセット
         }
 
         //ダウン中
         if (golem.isDown)
         {
             counter += Time.deltaTime;
+
+            //ダウン終了前に音声を流す
+            if(!hasPlayedTimeLimitSE && counter >= golem.bossDownTime - 7f)
+            {
+                sm.OnPlaySE(audioSource, timelimit_SE);
+                this.gameObject.transform.DOShakePosition(2f, 0.15f, 20, 20f); //地面を揺らす
+                hasPlayedTimeLimitSE = true;
+            }
 
             // ダウン終了の少し前に橋を元に戻し始める
             if (!downEnd_hasProcessed && (counter >= golem.bossDownTime - 3f))
