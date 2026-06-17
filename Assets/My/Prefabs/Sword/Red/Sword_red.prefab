@@ -150,6 +150,9 @@ MonoBehaviour:
   explosionEffect: {fileID: 4794043405585894037, guid: 37138c0c33167b04fa1fb90b7f5a794f, type: 3}
   fireEffect: {fileID: 2360655870356088562, guid: 79c126c467d9af94ea2e9a28a6a699fa, type: 3}
   skill2Effect: {fileID: 7363623726690431214, guid: 16b3689c88e638e4fb9b1ae46f22d209, type: 3}
+  enchant03_duration: 10
+  additional_Sword: {fileID: 3213851043470871558, guid: d3fa3507f76b5b046b818d0b5e9cba7a, type: 3}
+  addtional_Sword_Pos: []
   rightController: {fileID: 0}
   leftController: {fileID: 0}
   rootPoint: {fileID: 7105219018683203354}

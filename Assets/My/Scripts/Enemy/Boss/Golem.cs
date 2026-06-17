@@ -117,7 +117,7 @@ public class Golem : MonoBehaviour
             
             do
             {
-                rnd = Random.Range(2, 4); //1, 4
+                rnd = Random.Range(1, 4); //1, 4
             }
             while (rnd == lastAction); // 前回と同じなら引き直し
 

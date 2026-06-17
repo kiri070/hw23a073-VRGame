@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR;
-using JetBrains.Annotations;
 
 public class Sword_red : MonoBehaviour
 {
@@ -17,8 +16,13 @@ public class Sword_red : MonoBehaviour
     public GameObject skill2Effect;
 
     //エンチャントレベル3
+    [Tooltip("エンチャント3の持続時間")]public float enchant03_duration = 10f;
+    public GameObject additional_Sword;
+    bool isEnchant03 = false;
+    Coroutine enchant03_cor = null;
+    List<Transform> addtional_Sword_Pos = new List<Transform>();
 
-
+    public Vector3 hitPos; //剣が当たったコライダーの位置
     Player_EXBar player_EXBar;
     EXSkill eXSkill;
     Golem golem;
@@ -89,6 +93,12 @@ public class Sword_red : MonoBehaviour
         head = Camera.main.transform;
         prevHeadPos = head.position;
         majicEffect = GameObject.Find("MajicEffect");
+
+        //追撃剣のスポーン位置を取得
+        for(int i = 0; i < 3; i++)
+        {
+            addtional_Sword_Pos.Add(GameObject.Find($"Addtional_SwordPos{i}").transform);
+        }
     }
 
     void Update()
@@ -98,7 +108,6 @@ public class Sword_red : MonoBehaviour
             golem = FindObjectOfType<Golem>();
         }
 
-        // headSpeed = (head.position - prevHeadPos).magnitude / Time.deltaTime; //プレイヤーの移動量を計算
         Vector3 move = head.position - prevHeadPos;
         move.y = 0f; //上下・回転の影響カット
 
@@ -131,6 +140,9 @@ public class Sword_red : MonoBehaviour
 
         // ===============================================
 
+        //エンチャント3の追撃処理
+        // Additional_Attack();
+
         bool traced = CheckTrace();
 
         if (traced && cooldown <= 0f)
@@ -144,13 +156,10 @@ public class Sword_red : MonoBehaviour
             UpdateEnchant();
 
             //振り終わりで発動
-            // if (!isSwinging && wasSwinging ) 
             if (!isSwinging && wasSwinging && isActivated)
             {
                 ExecuteSkill();
             }
-
-            wasSwinging = isSwinging;
         }
         // スキル非発動中はエフェクトを消す
         else 
@@ -163,8 +172,9 @@ public class Sword_red : MonoBehaviour
 
 
 
-
         prevHeadPos = head.position;
+
+        wasSwinging = isSwinging; //振り終わりフラグ
     }
 
     // ===== なぞり判定 =====
@@ -312,6 +322,9 @@ public class Sword_red : MonoBehaviour
             else
             {
                 Debug.Log("エンチャントレベル3のスキル発動");
+                if(enchant03_cor != null) StopCoroutine(enchant03_cor);
+                enchant03_cor = StartCoroutine(Enchant03_Calculation()); //持続時間計測
+
             }
             
         }
@@ -319,6 +332,30 @@ public class Sword_red : MonoBehaviour
         isActivated = false;
         enchantLevel = 0;
     }
+
+    // === エンチャント3の追撃処理関連 === //
+    //エンチャント3の持続時間を管理するコルーチン
+    IEnumerator Enchant03_Calculation()
+    {
+        isEnchant03 = true;
+        yield return new WaitForSeconds(enchant03_duration);
+        isEnchant03 = false;
+    }
+    //追撃処理
+    // void Additional_Attack()
+    // {
+    //     if(hitPos == Vector3.zero) return;
+    //     if(isSwinging && isEnchant03 && !wasSwinging)
+    //     {
+    //         Debug.Log("追撃");
+    //         //スポーン位置の選別
+    //         int rnd = 0;
+    //         rnd = Random.Range(0, addtional_Sword_Pos.Count);
+    //         //剣を生成
+    //         Instantiate(additional_Sword, addtional_Sword_Pos[rnd].position, additional_Sword.transform.rotation);
+    //     }
+    // }
+    // ====================================== //
 
     // ===== 前フレーム更新 =====
     void UpdatePreviousState()
@@ -337,6 +374,16 @@ public class Sword_red : MonoBehaviour
         }
     }
 
+    //当たったコライダーの位置を取得
+    Vector3 GetHitPoint(Collider other)
+    {
+        if (tipPoint != null)
+        {
+            return other.ClosestPoint(tipPoint.position);
+        }
+        return other.ClosestPoint(transform.position);
+    }
+
     void OnTriggerEnter(Collider other)
     {
         //石の当たり判定
@@ -353,7 +400,8 @@ public class Sword_red : MonoBehaviour
         {
             isAttack = true;
 
-            Vector3 hitPos = other.ClosestPoint(transform.position);
+            // Vector3 hitPos = GetHitPoint(other);
+            hitPos = GetHitPoint(other);
 
             Instantiate(hitEffect, hitPos, Quaternion.identity);
 
@@ -368,6 +416,16 @@ public class Sword_red : MonoBehaviour
             SendHaptic(1f, 0.5f, rightController);  //振動
             gm.StartHitStop(0.7f, 0.7f); //ヒットストップ
             sm.OnPlaySE(audioSource, swordSoundList.hitSwordSound, 3f);
+
+
+            if(isEnchant03)
+            {
+                int rnd = Random.Range(0, addtional_Sword_Pos.Count);
+                
+                GameObject sword = Instantiate(additional_Sword, addtional_Sword_Pos[rnd].position, Quaternion.identity);
+
+                sword.GetComponent<Addtional_Sword>().SetTarget(other.transform);
+            }   
         }
 
         //ボスの腕の当たり判定(ダウン時のみ)
@@ -376,7 +434,8 @@ public class Sword_red : MonoBehaviour
 
             isAttack = true;
 
-            Vector3 hitPos = other.ClosestPoint(transform.position);
+            // Vector3 hitPos = GetHitPoint(other);
+            hitPos = GetHitPoint(other);
 
             Instantiate(hitEffect, hitPos, Quaternion.identity);
 
@@ -389,6 +448,15 @@ public class Sword_red : MonoBehaviour
             SendHaptic(1f, 0.5f, rightController);  //振動
             gm.StartHitStop(0.7f, 0.7f); //ヒットストップ
             sm.OnPlaySE(audioSource, swordSoundList.hitSwordSound, 3f);
+
+            if(isEnchant03)
+            {
+                int rnd = Random.Range(0, addtional_Sword_Pos.Count);
+
+                GameObject sword = Instantiate(additional_Sword, addtional_Sword_Pos[rnd].position, Quaternion.identity);
+
+                sword.GetComponent<Addtional_Sword>().SetTarget(hitPos);
+            }   
         }
     }
 

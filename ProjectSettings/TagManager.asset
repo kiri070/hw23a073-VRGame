@@ -16,6 +16,7 @@ TagManager:
   - Lightning
   - Skill2
   - WeakPoint
+  - Addtional_Sword
   layers:
   - Default
   - TransparentFX

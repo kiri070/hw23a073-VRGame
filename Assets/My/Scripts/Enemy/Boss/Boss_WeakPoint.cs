@@ -26,5 +26,12 @@ public class Boss_WeakPoint : MonoBehaviour
             Instantiate(golem.skill2_DownEffect, other.gameObject.transform.position, golem.skill2_DownEffect.transform.rotation);
             golem.TakeDamage(10);
         }
+
+        //追撃剣の当たり判定(ダウン中のみ)
+        if(other.gameObject.CompareTag("Addtional_Sword") && golem.isDown)
+        {
+            soundManager.OnPlaySE(audioSource, bossSoundList.damageSound);
+            golem.TakeDamage(5);
+        }
     }
 }
