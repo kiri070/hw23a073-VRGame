@@ -250,6 +250,7 @@ public class Sword_red : MonoBehaviour
 
             //エンチャント音声
             sm.OnPlaySE(audioSource, swordSoundList.enchant_Level3_sound, 3f);
+            sm.OnPlaySE(audioSource, swordSoundList.enchant_Level3_sound02, 3f);
         }
 
         Debug.Log("なぞり成功！");

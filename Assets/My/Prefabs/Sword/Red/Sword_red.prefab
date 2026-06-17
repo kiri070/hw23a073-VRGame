@@ -152,7 +152,7 @@ MonoBehaviour:
   skill2Effect: {fileID: 7363623726690431214, guid: 16b3689c88e638e4fb9b1ae46f22d209, type: 3}
   enchant03_duration: 10
   additional_Sword: {fileID: 3213851043470871558, guid: d3fa3507f76b5b046b818d0b5e9cba7a, type: 3}
-  addtional_Sword_Pos: []
+  hitPos: {x: 0, y: 0, z: 0}
   rightController: {fileID: 0}
   leftController: {fileID: 0}
   rootPoint: {fileID: 7105219018683203354}
@@ -253,6 +253,7 @@ MonoBehaviour:
   enchant_Level1_sound: {fileID: 8300000, guid: fcbdf25dd653a384e9d47b07956f2406, type: 3}
   enchant_Level2_sound: {fileID: 8300000, guid: b6a2e5e286d5e1f40bdc4ddd69760424, type: 3}
   enchant_Level3_sound: {fileID: 8300000, guid: c8c9089d9523e03418c655aa56a5d8fe, type: 3}
+  enchant_Level3_sound02: {fileID: 8300000, guid: d86019b65ae019f48a76e67294c9ea2c, type: 3}
 --- !u!82 &2668273626574027237
 AudioSource:
   m_ObjectHideFlags: 0

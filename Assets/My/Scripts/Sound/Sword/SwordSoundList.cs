@@ -12,4 +12,5 @@ public class SwordSoundList : MonoBehaviour
     public AudioClip enchant_Level1_sound;
     public AudioClip enchant_Level2_sound;
     public AudioClip enchant_Level3_sound;
+    public AudioClip enchant_Level3_sound02;
 }

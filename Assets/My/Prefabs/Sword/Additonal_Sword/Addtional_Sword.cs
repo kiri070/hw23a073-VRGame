@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Unity.VisualScripting;
+using UnityEditor.EditorTools;
 using UnityEngine;
 
 public class Addtional_Sword : MonoBehaviour
@@ -23,12 +23,15 @@ public class Addtional_Sword : MonoBehaviour
     [Tooltip("ヒットサウンド")]public AudioClip hitSE01;
     [Tooltip("ヒットサウンド")]public AudioClip hitSE02;
     [Tooltip("ヒットサウンド")]public AudioClip hitSE03;
+    [Tooltip("召喚サウンド")] public AudioClip spawnSE;
     
     void Start()
     {
         sword_Red = FindObjectOfType<Sword_red>();
         sm = FindObjectOfType<SoundManager>();
         audioSource = GetComponent<AudioSource>();
+
+        sm.OnPlaySE(audioSource, spawnSE, 8f);
         StartCoroutine(Attack());
     }
 
