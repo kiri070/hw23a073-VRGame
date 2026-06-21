@@ -49,7 +49,7 @@ public class BossHPBar : MonoBehaviour
         // hpbar.value -= damage;
         //アニメーション付きで減少
         hpbarTween = hpbar.DOValue(targetHP, 1.0f).SetEase(Ease.OutCubic);
-        hpText.text = (targetHP / maxHP * 100).ToString("F0") + "%";
+        // hpText.text = (targetHP / maxHP * 100).ToString("F0") + "%";
     }
 
     void OnDestroy()

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Body : MonoBehaviour
 {
-    Player_HPBar player_HPBar;
+    public Player_HPBar player_HPBar;
     EXSkill exSkill;
     // === プレイヤー情報 === //
     [HideInInspector] public int hp = 100;
@@ -41,7 +41,7 @@ public class Body : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         gm = FindObjectOfType<GameManager>();
-        player_HPBar = FindObjectOfType<Player_HPBar>();
+        // player_HPBar = FindObjectOfType<Player_HPBar>();
         exSkill = FindObjectOfType<EXSkill>();
     }
 

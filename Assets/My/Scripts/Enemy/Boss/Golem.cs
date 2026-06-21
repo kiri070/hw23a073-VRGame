@@ -48,6 +48,7 @@ public class Golem : MonoBehaviour
    bool introStart = false;
     bool introEnd = false;
     public Transform landPoint; // 着地点
+    public GameObject questImg; //クエストの画像
 
 
     Animator anim; // アニメーターコンポーネント
@@ -500,7 +501,22 @@ public class Golem : MonoBehaviour
         //咆哮
         anim.SetTrigger("Rage");
         soundManager.OnPlaySE(audioSource, bossSoundList.rageSound);
-        yield return new WaitForSeconds(4f);
+        // yield return new WaitForSeconds(4f);
+        
+        yield return new WaitForSeconds(1f);
+
+        //クエストを表示
+        questImg.SetActive(true);
+        questImg.transform.localScale = Vector3.zero;
+        questImg.transform.DOScale(0.15f, 0.4f).SetEase(Ease.OutBack);
+        
+        yield return new WaitForSeconds(3f);
+
+        //クエスト非表示
+        questImg.transform.DOScale(0f, 0.5f).SetEase(Ease.OutBack).OnComplete(() =>
+                {
+                    questImg.SetActive(false);
+                });;
 
         bgm_Obj.SetActive(true); //BGMをオン
         introEnd = true; //ムービー終了

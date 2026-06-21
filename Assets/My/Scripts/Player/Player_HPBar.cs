@@ -38,7 +38,33 @@ public class Player_HPBar : MonoBehaviour
     {
         hpbarTween?.Kill();
         hpbarTween = hpbar.DOValue(hpbar.value - damage, 1.0f).SetEase(Ease.OutCubic);
-        hpText.text = "HP:" + ((body.hp / maxHP) * 100).ToString("F0") + "%"; //残りHPパーセント(小数点以下カット)
+        UpdateHPText();
+    }
+
+    //このオブジェクトがonの時に呼ばれる
+    void OnEnable()
+    {
+        if (maxHP > 0f)
+        {
+            RefreshHPBar();
+        }
+    }
+
+    //HPバーを現在のHPに同期
+    void RefreshHPBar()
+    {
+        if (body == null) body = FindObjectOfType<Body>();
+        if (hpbar == null || body == null) return;
+
+        hpbar.maxValue = maxHP;
+        hpbar.value = Mathf.Clamp(body.hp, 0f, maxHP); //body.hpを0~maxHPの範囲で代入
+        UpdateHPText();
+    }
+
+    void UpdateHPText()
+    {
+        if (hpText == null || body == null || maxHP <= 0f) return;
+        hpText.text = "HP:" + ((body.hp / maxHP) * 100).ToString("F0") + "%";
     }
 
     void Oestroy()
