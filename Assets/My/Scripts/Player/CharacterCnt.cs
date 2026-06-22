@@ -11,6 +11,14 @@ public class CharacterCnt : MonoBehaviour
 
     bool prevJump; // 押した瞬間検知用
 
+    //回避
+    public float sprintSpeed = 5f;
+    float velocityX;
+    bool isSprint = false;
+    float sprintCoolTime;
+    [SerializeField] Camera playerCamera;
+     Vector3 sprint_Direction;
+
     //スナップターン用
     float turnCooldown = 0f;
     public float turnAngle = 30f; // 回転角度
@@ -83,13 +91,69 @@ public class CharacterCnt : MonoBehaviour
             prevJump = isJump;
         }
 
+        //===== 回避 ===== //
+        //回避クール関連
+        if(isSprint)
+        {
+            sprintCoolTime += Time.deltaTime;
+        }
+        if(sprintCoolTime >= 5f)
+        {
+            isSprint = false;
+        }
+        //回避ボタンを押したとき
+        bool sprintInput;
+        if(leftDevice.TryGetFeatureValue(CommonUsages.triggerButton, out sprintInput))
+        {
+            if(sprintInput && !isSprint)
+            {
+                StartCoroutine(GameSpeed(0.3f, 0.3f)); //ゲーム速度変更
+                velocityX = sprintSpeed; //速さを代入
+
+                //回避方向を取得
+                if(input.magnitude <= 0) sprint_Direction = playerCamera.transform.forward; //移動していない時は前に回避
+                else sprint_Direction = move; //移動中はスティックの方向に回避
+                
+                sprint_Direction.y = 0; //高さは考慮しない
+                sprint_Direction.Normalize(); //方向を1に正規化
+                sprintCoolTime = 0f; //クールタイムをリセット
+                isSprint = true; //回避フラグをオン
+            }
+        }
+        //回避中
+        if(isSprint)
+        {
+            controller.Move(sprint_Direction * velocityX * Time.deltaTime); //毎フレーム回避処理
+
+            velocityX -= 20f * Time.deltaTime; //徐々に減衰
+
+            if(velocityX <= 0)
+            {
+                velocityX = 0;
+            }
+        }   
+        // ===== ///
+
         // 重力
         if (controller.isGrounded && velocityY < 0)
             velocityY = -2f;
 
         velocityY += Physics.gravity.y * Time.deltaTime;
-
+        
         Vector3 finalMove = move * moveSpeed + new Vector3(0, velocityY, 0);
         controller.Move(finalMove * Time.deltaTime);
+    }
+
+    /// <summary>
+    /// ゲーム速度を変える関数
+    /// </summary>
+    /// <param name="duration"></param>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    IEnumerator GameSpeed(float duration, float time)
+    {
+        Time.timeScale = time;
+        yield return new WaitForSecondsRealtime(duration); //実際の時間待つ
+        Time.timeScale = 1f;
     }
 }

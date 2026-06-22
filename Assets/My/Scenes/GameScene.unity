@@ -679,6 +679,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
+  sprintSpeed: 15
+  playerCamera: {fileID: 1386017172}
   turnAngle: 30
   turnDelay: 0.2
 --- !u!1001 &104203061
