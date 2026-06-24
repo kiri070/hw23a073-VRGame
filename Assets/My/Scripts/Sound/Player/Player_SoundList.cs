@@ -5,4 +5,5 @@ using UnityEngine;
 public class Player_SoundList : MonoBehaviour
 {
     public AudioClip punchDamageSound;
+    public AudioClip sprintSound;
 }

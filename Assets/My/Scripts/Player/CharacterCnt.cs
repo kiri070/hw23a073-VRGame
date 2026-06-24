@@ -18,6 +18,11 @@ public class CharacterCnt : MonoBehaviour
     float sprintCoolTime;
     [SerializeField] Camera playerCamera;
      Vector3 sprint_Direction;
+    //エフェクト
+    public GameObject sprintForward_Effect;
+    public GameObject sprintBack_Effect;
+    public GameObject sprintRight_Effect;
+    public GameObject sprintLeft_Effect;
 
     //スナップターン用
     float turnCooldown = 0f;
@@ -25,12 +30,18 @@ public class CharacterCnt : MonoBehaviour
     public float turnDelay = 0.3f; // 連続防止
 
     EXSkill exSkill;
+
+    Player_SoundList player_SoundList;
+    SoundManager sm;
+    public AudioSource audioSource;
     
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
         exSkill = FindObjectOfType<EXSkill>();
+        player_SoundList = FindObjectOfType<Player_SoundList>();
+        sm = FindObjectOfType<SoundManager>();
     }
 
     void Update()
@@ -110,10 +121,38 @@ public class CharacterCnt : MonoBehaviour
                 StartCoroutine(GameSpeed(0.3f, 0.3f)); //ゲーム速度変更
                 velocityX = sprintSpeed; //速さを代入
 
+                //効果音
+                sm.OnPlaySE(audioSource, player_SoundList.sprintSound, 8f);
+
                 //回避方向を取得
                 if(input.magnitude <= 0) sprint_Direction = playerCamera.transform.forward; //移動していない時は前に回避
                 else sprint_Direction = move; //移動中はスティックの方向に回避
-                
+
+                //エフェクト
+                sprintForward_Effect.SetActive(false);
+                sprintBack_Effect.SetActive(false);
+                sprintRight_Effect.SetActive(false);
+                sprintLeft_Effect.SetActive(false);
+
+                if (input.magnitude <= 0)
+                {
+                    sprintForward_Effect.SetActive(true);
+                }
+                //横方向
+                else if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+                {
+                    if (input.x > 0) sprintRight_Effect.SetActive(true); //右
+                    else sprintLeft_Effect.SetActive(true); //左
+                }
+                //縦方向
+                else
+                {
+                    if (input.y > 0) sprintForward_Effect.SetActive(true); //前
+                    else sprintBack_Effect.SetActive(true); //後
+                }
+
+                StartCoroutine(StopSprintEffect());
+
                 sprint_Direction.y = 0; //高さは考慮しない
                 sprint_Direction.Normalize(); //方向を1に正規化
                 sprintCoolTime = 0f; //クールタイムをリセット
@@ -155,5 +194,15 @@ public class CharacterCnt : MonoBehaviour
         Time.timeScale = time;
         yield return new WaitForSecondsRealtime(duration); //実際の時間待つ
         Time.timeScale = 1f;
+    }
+
+    IEnumerator StopSprintEffect()
+    {
+        yield return new WaitForSecondsRealtime(1f);
+        //回避エフェクトをオフ
+        sprintForward_Effect.SetActive(false);
+        sprintBack_Effect.SetActive(false);
+        sprintRight_Effect.SetActive(false);
+        sprintLeft_Effect.SetActive(false);
     }
 }
