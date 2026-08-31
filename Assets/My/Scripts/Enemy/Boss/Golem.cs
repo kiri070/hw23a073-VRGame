@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 
+
 /// <summary>
 /// ゴーレムの挙動を制御するクラス
 /// </summary>
@@ -520,6 +521,10 @@ public class Golem : MonoBehaviour
 
         bgm_Obj.SetActive(true); //BGMをオン
         introEnd = true; //ムービー終了
+
+        //ガイドエフェクトに参照を渡す
+        GuidEffect guidEffect = FindObjectOfType<GuidEffect>();
+        guidEffect.SetGolem(this);
     }
 
     // === ダウン処理 ===
