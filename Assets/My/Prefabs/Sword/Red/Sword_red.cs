@@ -18,7 +18,7 @@ public class Sword_red : MonoBehaviour
     //エンチャントレベル3
     [Tooltip("エンチャント3の持続時間")]public float enchant03_duration = 10f;
     public GameObject additional_Sword;
-    bool isEnchant03 = false;
+    [HideInInspector] public bool isEnchant03 = false;
     Coroutine enchant03_cor = null;
     List<Transform> addtional_Sword_Pos = new List<Transform>();
 
@@ -69,6 +69,8 @@ public class Sword_red : MonoBehaviour
     Transform head;
     Vector3 prevHeadPos;
     float headSpeed;
+
+    Skill3_showTime showTime;
     void Start()
     {
         rightController = GameObject.Find("Right Controller").GetComponent<XRBaseController>();
@@ -99,6 +101,11 @@ public class Sword_red : MonoBehaviour
         {
             addtional_Sword_Pos.Add(GameObject.Find($"Addtional_SwordPos{i}").transform);
         }
+
+        //スキル3の残り時間UIに参照を渡す
+        showTime = FindObjectOfType<Skill3_showTime>();
+        showTime.Set_Sword_red(this);
+
     }
 
     void Update()
@@ -323,7 +330,8 @@ public class Sword_red : MonoBehaviour
             else
             {
                 Debug.Log("エンチャントレベル3のスキル発動");
-                if(enchant03_cor != null) StopCoroutine(enchant03_cor);
+                showTime.StartBar(); //スキル3の残り時間UIを更新
+                if (enchant03_cor != null) StopCoroutine(enchant03_cor);
                 enchant03_cor = StartCoroutine(Enchant03_Calculation()); //持続時間計測
 
             }
@@ -342,21 +350,6 @@ public class Sword_red : MonoBehaviour
         yield return new WaitForSeconds(enchant03_duration);
         isEnchant03 = false;
     }
-    //追撃処理
-    // void Additional_Attack()
-    // {
-    //     if(hitPos == Vector3.zero) return;
-    //     if(isSwinging && isEnchant03 && !wasSwinging)
-    //     {
-    //         Debug.Log("追撃");
-    //         //スポーン位置の選別
-    //         int rnd = 0;
-    //         rnd = Random.Range(0, addtional_Sword_Pos.Count);
-    //         //剣を生成
-    //         Instantiate(additional_Sword, addtional_Sword_Pos[rnd].position, additional_Sword.transform.rotation);
-    //     }
-    // }
-    // ====================================== //
 
     // ===== 前フレーム更新 =====
     void UpdatePreviousState()
