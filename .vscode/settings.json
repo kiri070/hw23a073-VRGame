@@ -51,6 +51,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "SotuSei.slnx",
+    "dotnet.defaultSolution": "Sotusei_gitNew.slnx",
     "dotnet.preferCSharpExtension": true
 }
