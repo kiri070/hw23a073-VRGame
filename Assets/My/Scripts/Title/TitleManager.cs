@@ -1,21 +1,17 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class TitleManager : MonoBehaviour
 {
     [Header("タイトルUI")]
     public GameObject mainUI;
 
-    [Header("ロード画面全体")]
-    public GameObject loadingUI;     // LoadingUI親ごと指定
+    [Header("フェード用Sphere")]
+    public GameObject fadeSphere;
 
-    [Header("任意")]
-    public Slider loadingBar;
-    public Text loadingText;
-
-    private bool isLoading = false;
+    [Header("フェード設定")]
+    public float fadeTime = 0.5f;
 
     [Header("難易度ボタンの上に表示するオブジェクト")]
     public GameObject selectEasyObj;
@@ -23,60 +19,81 @@ public class TitleManager : MonoBehaviour
     public GameObject selectHardObj;
 
     public GameObject hardEffect;
-    
-    bool isTutorial = false;
 
-    //音声
+    bool isTutorial = false;
+    private bool isLoading = false;
+
+    // フェード用
+    private Renderer fadeRenderer;
+    private Material fadeMaterial;
+    private Color fadeColor;
+
+    // 音声
     SoundManager sm;
     TitleSoundList titleSoundList;
     AudioSource audioSource;
 
     void Start()
     {
-        
-        // 最初はロード画面を非表示
-        if (loadingUI != null)
-            loadingUI.SetActive(false);
-
         sm = FindObjectOfType<SoundManager>();
         titleSoundList = FindObjectOfType<TitleSoundList>();
         audioSource = this.gameObject.GetComponent<AudioSource>();
 
-        OnNormalButton(); //初期難易度はNormal
+        // フェードSphereの準備
+        if (fadeSphere != null)
+        {
+            fadeRenderer = fadeSphere.GetComponent<Renderer>();
+            fadeMaterial = fadeRenderer.material;
+
+            fadeColor = fadeMaterial.color;
+
+            // 最初は透明
+            fadeColor.a = 0f;
+            fadeMaterial.color = fadeColor;
+        }
+
+        OnNormalButton();
     }
 
-    //難易度ボタン
+
+    // =========================
+    // 難易度ボタン
+    // =========================
+
     public void OnEasyButton()
     {
-        //音声
         sm.OnPlaySE(audioSource, titleSoundList.clickSound);
 
         PlayerPrefs.SetString("Difficulty", "Easy");
+
         selectEasyObj.SetActive(true);
         selectNormalObj.SetActive(false);
         selectHardObj.SetActive(false);
 
         hardEffect.SetActive(false);
-
     }
+
+
     public void OnNormalButton()
     {
-        //音声
         sm.OnPlaySE(audioSource, titleSoundList.clickSound);
 
         PlayerPrefs.SetString("Difficulty", "Normal");
+
         selectEasyObj.SetActive(false);
         selectNormalObj.SetActive(true);
         selectHardObj.SetActive(false);
 
         hardEffect.SetActive(false);
     }
+
+
     public void OnHardButton()
     {
-        //音声
         sm.OnPlaySE(audioSource, titleSoundList.clickSound);
 
         PlayerPrefs.SetString("Difficulty", "Hard");
+
         selectEasyObj.SetActive(false);
         selectNormalObj.SetActive(false);
         selectHardObj.SetActive(true);
@@ -84,7 +101,11 @@ public class TitleManager : MonoBehaviour
         hardEffect.SetActive(true);
     }
 
-    //プレイボタン
+
+    // =========================
+    // プレイボタン
+    // =========================
+
     public void OnPlayGameSceneButton()
     {
         if (isLoading) return;
@@ -93,15 +114,25 @@ public class TitleManager : MonoBehaviour
         StartLoadScene();
     }
 
-    //チュートリアルボタン
+
+    // =========================
+    // チュートリアルボタン
+    // =========================
+
     public void OnPlayGameSceneButton(Object clickedButton)
     {
         if (isLoading) return;
 
-        isTutorial = clickedButton != null && clickedButton.name == "Tutorial";
+        isTutorial = clickedButton != null &&
+                     clickedButton.name == "Tutorial";
 
         StartLoadScene();
     }
+
+
+    // =========================
+    // ロード開始
+    // =========================
 
     void StartLoadScene()
     {
@@ -109,58 +140,74 @@ public class TitleManager : MonoBehaviour
         StartCoroutine(LoadScene());
     }
 
+
     IEnumerator LoadScene()
     {
-        // タイトルUI消す
+        // タイトルUIを消す
         if (mainUI != null)
             mainUI.SetActive(false);
 
-        // ロードUI表示
-        if (loadingUI != null)
-            loadingUI.SetActive(true);
 
-        // 初期化
-        if (loadingBar != null)
-            loadingBar.value = 0f;
+        // =========================
+        // フェードアウト
+        // =========================
 
-        if (loadingText != null)
-            loadingText.text = "0%";
-        
-        //チューリアル または ゲームシーンを読み込む
-        string sceneName = isTutorial ? "TutorialScene" : "GameScene";
+        yield return StartCoroutine(Fade(0f, 1f));
+
+
+        // =========================
+        // シーンロード
+        // =========================
+
+        string sceneName = isTutorial
+            ? "TutorialScene"
+            : "GameScene";
+
         AsyncOperation load = SceneManager.LoadSceneAsync(sceneName);
+
         load.allowSceneActivation = false;
 
-        while (!load.isDone)
+
+        while (load.progress < 0.9f)
         {
-            float progress = Mathf.Clamp01(load.progress / 0.9f);
+            yield return null;
+        }
 
-            // バー更新
-            if (loadingBar != null)
-                loadingBar.value = progress;
 
-            // 数字更新
-            if (loadingText != null)
-                loadingText.text = (progress * 100f).ToString("F0") + "%";
+        // 完全にロード完了
+        load.allowSceneActivation = true;
+    }
 
-            // 読み込み完了
-            if (load.progress >= 0.9f)
-            {
-                if (loadingBar != null)
-                    loadingBar.value = 1f;
 
-                if (loadingText != null)
-                    loadingText.text = "100%";
+    // =========================
+    // フェード処理
+    // =========================
 
-                // クリーンアップ追加
-                Resources.UnloadUnusedAssets();
-                System.GC.Collect();
+    IEnumerator Fade(float startAlpha, float endAlpha)
+    {
+        if (fadeMaterial == null)
+            yield break;
 
-                yield return new WaitForSeconds(0.5f);
-                load.allowSceneActivation = true;
-            }
+        float time = 0f;
+
+        while (time < fadeTime)
+        {
+            time += Time.deltaTime;
+
+            float t = Mathf.Clamp01(time / fadeTime);
+
+            fadeColor.a = Mathf.Lerp(
+                startAlpha,
+                endAlpha,
+                t
+            );
+
+            fadeMaterial.color = fadeColor;
 
             yield return null;
         }
+
+        fadeColor.a = endAlpha;
+        fadeMaterial.color = fadeColor;
     }
 }
