@@ -33,5 +33,13 @@ public class Boss_WeakPoint : MonoBehaviour
             soundManager.OnPlaySE(audioSource, bossSoundList.damageSound);
             golem.TakeDamage(5);
         }
+
+        //スキル2の当たり判定
+        if (other.gameObject.CompareTag("Skill2") && golem.isDown)
+        {
+            soundManager.OnPlaySE(audioSource, bossSoundList.damageSound);
+            Instantiate(golem.skill2_DownEffect, other.gameObject.transform.position, golem.skill2_DownEffect.transform.rotation);
+            golem.TakeDamage(10);
+        }
     }
 }
